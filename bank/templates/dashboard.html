@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+</head>
+<body>
+    <h1>Welcome to your Banking Dashboard!</h1>
+
+    <button>Deposit</button> <button>Withdraw</button>
+
+    <h2>Bank Accounts
+        <a href="{% url 'create_account' %}">
+        <button>Add</button>
+        </a>
+    </h2> 
+
+    <ul>
+        {% for account in accounts %}
+        <li><b>{{ account.account_name }}</b> | {{ account.get_account_type_display }} | Balance: {{ account.account_balance }}</li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>

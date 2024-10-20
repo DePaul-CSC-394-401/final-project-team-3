@@ -76,8 +76,12 @@ WSGI_APPLICATION = 'finalProject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'financeapp',          # Your database name
+        'USER': 'postgres',                # Your database user
+        'PASSWORD': 'admin123',   # Your database user's password
+        'HOST': 'localhost',           # Or '127.0.0.1'
+        'PORT': '5432',                # Default PostgreSQL port
     }
 }
 

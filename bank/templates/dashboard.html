@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>Banking Dashboard</title>
 </head>
 <body>
-    <h1>Welcome to your Banking Dashboard!</h1>
+
+    <h1>Welcome to Your Banking Dashboard!</h1>
 
     <button>Deposit</button> <button>Withdraw</button>
 
@@ -18,7 +19,10 @@
 
     <ul>
         {% for account in accounts %}
-        <li><b>{{ account.account_name }}</b> | {{ account.get_account_type_display }} | Balance: {{ account.account_balance }}</li>
+            <li style="margin-bottom: 20px;">
+                <b>{{ account.account_name }} | ${{ account.account_balance }}</b>
+                <a href="{% url 'view_account' account.account_no %}"><button>View</button></a>
+            </li>
         {% endfor %}
     </ul>
 

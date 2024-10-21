@@ -21,6 +21,7 @@ from bank import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('create/', views.create_account, name='create_account'),
+    path('account/<str:account_no>/', views.view_account, name = 'view_account'),
 
     path('', views.dashboard, name = 'dashboard'),
 ]

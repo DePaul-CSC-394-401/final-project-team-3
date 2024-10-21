@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import BankAccount
 from .forms import BankAccountForm
 
@@ -7,15 +7,6 @@ from .forms import BankAccountForm
 def dashboard(request):
     accounts = BankAccount.objects.all()
     return render(request, 'dashboard.html', {'accounts': accounts})
-
-def deposit(self, amount):
-        self.account_balance += amount
-        self.save()
-
-def withdraw(self, amount):
-    if self.account_balance >= amount:
-        self.account_balance -= amount
-        self.save() 
 
 def create_account(request):
     if request.method == 'POST':
@@ -26,3 +17,7 @@ def create_account(request):
     else:
         form = BankAccountForm()
     return render(request, 'create_account.html', {'form': form})
+
+def view_account(request, account_no):
+    account = get_object_or_404(BankAccount, account_no=account_no)
+    return render(request, 'view_account.html', {'account': account})

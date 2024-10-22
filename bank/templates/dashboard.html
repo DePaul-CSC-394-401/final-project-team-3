@@ -22,6 +22,12 @@
             <li style="margin-bottom: 20px;">
                 <b>{{ account.account_name }} | ${{ account.account_balance }}</b>
                 <a href="{% url 'view_account' account.account_no %}"><button>View</button></a>
+
+                <a href="{% url 'edit_account' account.id %}">Edit</a> |
+                <a href="{% url 'delete_account' account.id %}">Delete</a>
+
+
+
             </li>
         {% endfor %}
     </ul>

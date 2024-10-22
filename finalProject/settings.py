@@ -78,14 +78,13 @@ WSGI_APPLICATION = 'finalProject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'FinanceApp',          # Your database name
-        'USER': 'koji',                # Your database user
-        'PASSWORD': 'csc394',   # Your database user's password
-        'HOST': 'localhost',           # Or '127.0.0.1'
-        'PORT': '5432',                # Default PostgreSQL port
+        'NAME': 'financeapp',
+        'USER': 'brunel',
+        'PASSWORD': 'Assyrian2025',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

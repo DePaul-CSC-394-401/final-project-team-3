@@ -30,3 +30,27 @@ def create_account(request):
 def view_account(request, account_no):
     account = get_object_or_404(BankAccount, account_no=account_no)
     return render(request, 'view_account.html', {'account': account})
+
+
+
+# Edit Bank Account View (FR 5)
+def edit_account(request, account_id):
+   account = get_object_or_404(BankAccount, pk=account_id)
+   if request.method == 'POST':
+       form = BankAccountForm(request.POST, instance=account)
+       if form.is_valid():
+           form.save()
+           return redirect('dashboard')
+   else:
+       form = BankAccountForm(instance=account)
+   return render(request, 'edit_account.html', {'form': form, 'account': account})
+
+
+# Delete Bank Account View (FR 6)
+def delete_account(request, account_id):
+   account = get_object_or_404(BankAccount, pk=account_id)
+   if request.method == 'POST':
+       account.delete()
+       return redirect('dashboard')
+   return render(request, 'delete_account.html', {'account': account})
+  

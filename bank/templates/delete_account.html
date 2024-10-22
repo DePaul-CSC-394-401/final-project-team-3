@@ -1,0 +1,13 @@
+<h2>Delete Bank Account</h2>
+
+
+<p>Are you sure you want to delete the account <strong>{{ account.account_name }}</strong>?</p>
+
+
+<form method="POST">
+   {% csrf_token %}
+   <button type="submit">Yes, delete</button>
+</form>
+
+
+<p><a href="{% url 'dashboard' %}">No, go back to dashboard</a></p>

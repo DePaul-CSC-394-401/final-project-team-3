@@ -26,5 +26,20 @@
         {% endfor %}
     </ul>
 
+    <!-- Button to go to the transactions page -->
+    <a href="{% url 'transaction_list' %}">
+        <button>View All Transactions</button>
+    </a>
+
+    <!-- List of the 5 most recent transactions -->
+    <h2>Recent Transactions</h2>
+    <ul>
+        {% for transaction in recent_transactions %}
+            <li>{{ transaction.name }} | {{ transaction.transaction_type }} | ${{ transaction.amount }} | {{ transaction.date }}</li>
+        {% empty %}
+            <li>No recent transactions.</li>
+        {% endfor %}
+    </ul>
+
 </body>
 </html>

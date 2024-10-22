@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bank',
+    'transactions',
 ]
 
 MIDDLEWARE = [
@@ -77,9 +78,9 @@ WSGI_APPLICATION = 'finalProject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'financeapp',          # Your database name
-        'USER': 'postgres',                # Your database user
-        'PASSWORD': 'admin123',   # Your database user's password
+        'NAME': 'FinanceApp',          # Your database name
+        'USER': 'koji',                # Your database user
+        'PASSWORD': 'csc394',   # Your database user's password
         'HOST': 'localhost',           # Or '127.0.0.1'
         'PORT': '5432',                # Default PostgreSQL port
     }

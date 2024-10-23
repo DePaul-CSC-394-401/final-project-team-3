@@ -25,7 +25,10 @@ urlpatterns = [
     path('create/', views.create_account, name='create_account'),
     path('account/<str:account_no>/', views.view_account, name='view_account'),
     path('', views.dashboard, name='dashboard'),  # Home/dashboard view
-
+    
+    path('edit/<int:account_id>/', views.edit_account, name='edit_account'), 
+    path('delete/<int:account_id>/', views.delete_account, name='delete_account'), 
+     
     # Include the URLs from the transactions app
     path('', include('transactions.urls')),  # This will include the URLs from the transactions app
 ]

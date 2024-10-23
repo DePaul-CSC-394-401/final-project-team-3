@@ -1,0 +1,11 @@
+<h2>Edit Bank Account</h2>
+
+
+<form method="POST">
+   {% csrf_token %}
+   {{ form.as_p }}
+   <button type="submit">Save Changes</button>
+</form>
+
+
+<p><a href="{% url 'dashboard' %}">Back to Dashboard</a></p>

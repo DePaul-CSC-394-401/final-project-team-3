@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 
+SITE_ID = 1
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -39,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bank',
     'transactions',
+    'UserAuth'
 ]
 
 MIDDLEWARE = [
@@ -78,11 +81,11 @@ WSGI_APPLICATION = 'finalProject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'financeapp',
-        'USER': 'brunel',
-        'PASSWORD': 'Assyrian2025',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': 'bankapp',  # The name of the database you created
+        'USER': 'postgres',   # Your PostgreSQL user
+        'PASSWORD': 'patel474',     # Your PostgreSQL password
+        'HOST': 'localhost',             # or the address of your database server
+        'PORT': '5432',                      # leave empty for default
     }
 }
 
@@ -126,3 +129,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_REDIRECT_URL = 'dashboard'  # After login, go to the dashboard
+LOGOUT_REDIRECT_URL = 'login'     # After logout, go back to the login page

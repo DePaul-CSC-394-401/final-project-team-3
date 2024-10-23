@@ -1,5 +1,6 @@
 from django.db import models
 import random
+from django.contrib.auth.models import User  # Import the User model
 
 
 class BankAccount(models.Model):
@@ -28,6 +29,8 @@ class BankAccount(models.Model):
         ('MASTER', 'Mastercard'),
         ('VISA', 'Visa'),
     ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # Link to the User model
 
     def generate_account_number():
         while True:

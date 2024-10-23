@@ -1,0 +1,7 @@
+<!-- UserAuth/templates/UserAuth/signup.html -->
+<h2>Sign up</h2>
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Sign up</button>
+</form>

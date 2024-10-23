@@ -5,19 +5,27 @@ from django.shortcuts import render
 from django.shortcuts import render, redirect
 from .models import Transaction
 from .forms import TransactionForm
+from .models import BankAccount
 
 
 def transaction_list(request):
-    transactions = Transaction.objects.all()
+    #transactions = Transaction.objects.all()
+    accounts = BankAccount.objects.filter(user=request.user)
+    transactions = Transaction.objects.filter(bank_account__in=accounts)
+    #transactions = Transaction.objects.filter(user=request.user) 
     return render(request, 'transaction_list.html', {'transactions': transactions})
 
 
 # Add Transaction View (for adding new transactions)
 def add_transaction(request):
     if request.method == 'POST':
-        form = TransactionForm(request.POST)
+        #form = TransactionForm(request.POST)
+        form = TransactionForm(user=request.user, data=request.POST)  # Pass the user here
         if form.is_valid():
             transaction = form.save(commit=False)  # Don't save to DB yet, we need to modify the account balance
+
+            #ADDED THIS LINE
+            #transaction.user = request.user
 
             # Get the associated bank account
             bank_account = transaction.bank_account
@@ -41,6 +49,7 @@ def add_transaction(request):
 
             return redirect('transaction_list')
     else:
-        form = TransactionForm()
+        #form = TransactionForm()
+        form = TransactionForm(user=request.user)  # Pass the user here
 
     return render(request, 'add_transaction.html', {'form': form})

@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 from bank.models import BankAccount
 import random
@@ -21,6 +22,7 @@ class Transaction(models.Model):
     date = models.DateField(default=timezone.now)
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)  # Default value of 0.0
     bank_account = models.ForeignKey(BankAccount, to_field='account_no', on_delete=models.CASCADE)
+    #user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # Link to the User model
 
     def __str__(self):
         return f"{self.name} | {self.transaction_type.title()} | {self.bank_account} | ${self.amount}"

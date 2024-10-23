@@ -8,6 +8,11 @@
 <body>
 
     <h1>Welcome to Your Banking Dashboard!</h1>
+    <form action="{% url 'logout' %}" method="post" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+    <a href="{% url 'edit_user' %}" class="btn btn-primary">Edit Account Details</a>
 
     <button>Deposit</button> <button>Withdraw</button>
 

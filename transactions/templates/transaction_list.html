@@ -50,6 +50,45 @@
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#purchaseModal">Add Purchase</button>
             </div>
         </div>
+
+        <!-- Sorting and Filtering Form -->
+        <div class="card p-3 shadow-sm mt-4">
+            <form method="get" action="">
+                <div class="row g-3">
+                    <!-- Sort By Dropdown (Now set to col-md-6 for even split) -->
+                    <div class="col-md-6">
+                        <label for="sort_by" class="form-label">Sort By:</label>
+                        <select name="sort_by" id="sort_by" onchange="toggleFilters(); this.form.submit()" class="form-select">
+                            <option value="date" {% if request.GET.sort_by == 'date' %}selected{% endif %}>Date</option>
+                            <option value="account" {% if request.GET.sort_by == 'account' %}selected{% endif %}>Account</option>
+                        </select>
+                    </div>
+
+                    <!-- Account filter dropdown (Set to col-md-6 to match the "Sort By" dropdown) -->
+                    <div id="account_filter" class="col-md-6" style="display:none;">
+                        <label for="account" class="form-label">Select Account:</label>
+                        <select name="account" id="account" onchange="this.form.submit()" class="form-select">
+                            <option value="">-- Select Account --</option>
+                            {% for account in accounts %}
+                                <option value="{{ account.id }}" {% if request.GET.account == account.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ account.account_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Date picker (Set to col-md-6 to match the "Sort By" dropdown) -->
+                    <div id="date_filter" class="col-md-6" style="display:none;">
+                        <label for="date" class="form-label">Select Date:</label>
+                        <input type="date" name="date" id="date" value="{{ request.GET.date }}" class="form-control" onchange="this.form.submit()">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'transaction_list' %}" class="btn btn-secondary w-100">Remove Filters</a>
+        </div>
+
         <div class="card shadow-sm mt-4">
             <div class="card-header bg-info text-white d-flex justify-content-between">
                 <h5 class="mb-0">Transactions</h5>

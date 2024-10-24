@@ -7,15 +7,52 @@
     <title>All Transactions</title>
     <!-- Bootswatch CSS -->
     <link rel="stylesheet" href="https://bootswatch.com/5/zephyr/bootstrap.min.css">
+    <!-- Bootstrap JS and dependencies (jQuery and Popper.js) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        function toggleFilters() {
+            var sortBy = document.getElementById("sort_by").value;
+            var accountFilter = document.getElementById("account_filter");
+            var dateFilter = document.getElementById("date_filter");
+
+            if (sortBy === "account") {
+                accountFilter.style.display = "block";
+                dateFilter.style.display = "none";
+            } else if (sortBy === "date") {
+                accountFilter.style.display = "none";
+                dateFilter.style.display = "block";
+            } else {
+                accountFilter.style.display = "none";
+                dateFilter.style.display = "none";
+            }
+        }
+
+        window.onload = function() {
+            toggleFilters();
+        };
+    </script>
 </head>
 <body>
 
     <div class="container mt-5">
         <h2 class="text-center mb-4">All Transactions</h2>
+        <div class="mb-3 d-flex justify-content-between">
+            <div class="flex-grow-1 text-start">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#depositModal">Add Deposit</button>
+            </div>
+            <div class="flex-grow-1 text-center">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#withdrawModal">Add Withdraw</button>
+            </div>
+            <div class="flex-grow-1 text-end">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#purchaseModal">Add Purchase</button>
+            </div>
+        </div>
         <div class="card shadow-sm mt-4">
             <div class="card-header bg-info text-white d-flex justify-content-between">
                 <h5 class="mb-0">Transactions</h5>
-                <a href="{% url 'add_transaction' %}" class="btn btn-secondary btn-sm">Add</a>
             </div>
             <div class="card-body">
                 <table class="table table-striped">
@@ -42,6 +79,69 @@
                         {% endfor %}
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- Deposit Modal -->
+        <div class="modal fade" id="depositModal" tabindex="-1" role="dialog" aria-labelledby="depositModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="depositModalLabel">Add Deposit</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="depositForm" method="post" action="{% url 'add_deposit' %}">
+                            {% csrf_token %}
+                            {{ deposit_form|crispy }}
+                            <button type="submit" class="btn btn-primary">Save Deposit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Withdraw Modal -->
+        <div class="modal fade" id="withdrawModal" tabindex="-1" role="dialog" aria-labelledby="withdrawModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="withdrawModalLabel">Add Withdraw</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="withdrawForm" method="post" action="{% url 'add_withdraw' %}">
+                            {% csrf_token %}
+                            {{ withdraw_form|crispy }}
+                            <button type="submit" class="btn btn-primary">Save Withdraw</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Purchase Modal -->
+        <div class="modal fade" id="purchaseModal" tabindex="-1" role="dialog" aria-labelledby="purchaseModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="purchaseModalLabel">Add Purchase</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="purchaseForm" method="post" action="{% url 'add_purchase' %}">
+                            {% csrf_token %}
+                            {{ purchase_form|crispy }}
+                            <button type="submit" class="btn btn-primary">Save Purchase</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
 

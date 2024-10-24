@@ -48,7 +48,40 @@
                 </div>
             </div>
         </div>
-        <div class="mb-4 text-center">
+
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-info text-white d-flex justify-content-between">
+                <h5 class="mb-0">Transactions for this Account</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Date</th>
+                            <th class="text-end">Amount ($)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                            <tr>
+                                <td>{{ transaction.name }}</td>
+                                <td>{{ transaction.transaction_type }}</td>
+                                <td>{{ transaction.date }}</td>
+                                <td class="text-end">${{ transaction.amount }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">No Transactions for this account.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="mt-4 mb-4 text-center">
             <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-hover-up w-100">Back to Dashboard</a>
         </div>
     </div>

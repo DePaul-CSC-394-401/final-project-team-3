@@ -1,14 +1,29 @@
 from django import forms
 from .models import Transaction
-from .models import BankAccount
+from bank.models import BankAccount
 
-class TransactionForm(forms.ModelForm):
+class BaseTransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
-        fields = ['transaction_type', 'name', 'description', 'date', 'amount', 'bank_account']
-    
-    def __init__(self, user=None, *args, **kwargs):
+        fields = ['name', 'description', 'date', 'amount', 'bank_account']
+
+class PurchaseForm(BaseTransactionForm):
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
         super().__init__(*args, **kwargs)
-        if user is not None:
-            # Filter the bank accounts to only include those associated with the logged-in user
-            self.fields['bank_account'].queryset = BankAccount.objects.filter(user=user)
+        # All accounts are available for purchases
+        self.fields['bank_account'].queryset = BankAccount.objects.filter(user=user)
+
+class WithdrawForm(BaseTransactionForm):
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
+        super().__init__(*args, **kwargs)
+        # Only non-credit accounts should be available for withdraw
+        self.fields['bank_account'].queryset = BankAccount.objects.filter(user=user).exclude(account_type='credit')
+
+class DepositForm(BaseTransactionForm):
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
+        super().__init__(*args, **kwargs)
+        # All accounts are available for deposits
+        self.fields['bank_account'].queryset = BankAccount.objects.filter(user=user)

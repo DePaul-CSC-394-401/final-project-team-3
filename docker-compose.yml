@@ -1,0 +1,57 @@
+
+##version: '3.9'
+
+#services:
+#  django:
+ #   image: django-docker:0.0.1
+ #   build: .
+ #   ports:
+ #     - "8000:8000"
+ #   networks:
+ #     - basenetwork
+
+ # db:
+ #   image: postgres
+ #   environment:
+ #     POSTGRES_DB: bankapp
+ #     POSTGRES_USER: jaimecastaneda
+  #    POSTGRES_PASSWORD: banking
+  #  ports:
+  #    - "5432:5432"
+  #  networks:
+  #    - basenetwork
+
+#networks:
+  #basenetwork:
+
+services:
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: bankapp
+      POSTGRES_USER: jaimecastaneda
+      POSTGRES_PASSWORD: banking
+    ports:
+      - "5432:5432"
+    networks:
+      - basenetwork
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jaimecastaneda -d bankapp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  django:
+    build: .
+    image: django-docker:0.0.1
+    command: ["/entrypoint.sh"]
+    ports:
+      - "8000:8000"
+    networks:
+      - basenetwork
+    depends_on:
+      db:
+        condition: service_healthy
+
+networks:
+  basenetwork:

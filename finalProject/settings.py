@@ -41,8 +41,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bank',
     'transactions',
-    'UserAuth'
+    'UserAuth',
+    'crispy_forms', # USED FOR STYLING
+    'crispy_bootstrap5',
 ]
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -82,9 +87,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'bankapp',  # The name of the database you created
-        'USER': 'postgres',   # Your PostgreSQL user
-        'PASSWORD': 'patel474',     # Your PostgreSQL password
-        'HOST': 'localhost',             # or the address of your database server
+        'USER': 'jaimecastaneda',   # Your PostgreSQL user
+        'PASSWORD': 'banking',     # Your PostgreSQL password
+        'HOST': 'db',             # or the address of your database server
         'PORT': '5432',                      # leave empty for default
     }
 }

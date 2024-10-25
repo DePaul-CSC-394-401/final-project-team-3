@@ -41,6 +41,10 @@ def create_account(request):
         form = BankAccountForm()
     return render(request, 'create_account.html', {'form': form})
 
+
+
+
+
 def view_account(request, account_no):
     # Get the specific account for the logged-in user
     account = get_object_or_404(BankAccount, account_no=account_no, user=request.user)
@@ -55,18 +59,20 @@ def view_account(request, account_no):
 
 
 
+
 # Edit Bank Account View (FR 5)
+
 def edit_account(request, account_id):
-   #account = get_object_or_404(BankAccount, pk=account_id)
-   account = get_object_or_404(BankAccount, pk=account_id, user=request.user)  # Ensure the account belongs to the user
-   if request.method == 'POST':
-       form = BankAccountForm(request.POST, instance=account)
-       if form.is_valid():
-           form.save()
-           return redirect('dashboard')
-   else:
-       form = BankAccountForm(instance=account)
-   return render(request, 'edit_account.html', {'form': form, 'account': account})
+    account = get_object_or_404(BankAccount, pk=account_id, user=request.user)
+    if request.method == 'POST':
+        form = BankAccountForm(request.POST, instance=account)
+        if form.is_valid():
+            form.save()
+            return redirect('dashboard')
+    else:
+        form = BankAccountForm(instance=account)
+    return render(request, 'edit_account.html', {'form': form, 'account': account})
+
 
 
 # Delete Bank Account View (FR 6)

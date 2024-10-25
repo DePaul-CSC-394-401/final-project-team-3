@@ -32,6 +32,8 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -45,6 +47,14 @@ INSTALLED_APPS = [
     'crispy_forms', # USED FOR STYLING
     'crispy_bootstrap5',
 ]
+
+
+
+
+
+
+
+
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
@@ -83,6 +93,8 @@ WSGI_APPLICATION = 'finalProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -93,6 +105,18 @@ DATABASES = {
         'PORT': '5432',                      # leave empty for default
     }
 }
+
+
+
+# Database
+# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+
+
+
+
+
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

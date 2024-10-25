@@ -25,7 +25,7 @@
         <!-- info -->
         <div class="card mb-4 shadow-sm">
             <div class="card-header bg-primary text-white">
-                <h2 class="card-title text-center">{{ account.account_type }}</h2>
+                <h2 class="card-title text-center">{{ account.account_name }}</h2>
             </div>
             <div class="card-body">
                 <div class="row align-items-center">
@@ -37,8 +37,17 @@
                         </button>
                         <div class="collapse" id="accountDetails">
                             <hr>
-                            <p><strong>Account Number:</strong> <span class="masked">{{ account.account_no }}</span></p>
-                            <p><strong>Routing Number:</strong> {{ account.routing_no }}</p>
+                            {% if account.account_type == 'credit' %}
+                                <p><strong>Account Type:</strong><span class="masked"> {{ account.account_type }}</span></p>
+                                <p><strong>Card Number:</strong> {{ account.card_number }}</p>
+                                <p><strong>Card Name:</strong> {{ account.name_on_card }}</p>
+                                <p><strong>Card Institution:</strong> {{ account.get_card_institution_display }}</p>
+                            {% else %}
+                                <p><strong>Account Type:</strong><span class="masked"> {{ account.account_type }}</span></p>
+                                <p><strong>Account Number:</strong> {{ account.account_no }}</p>
+                                <p><strong>Routing Number:</strong> {{ account.routing_no }}</p>
+                                <p><strong>Financial Institution:</strong> {{ account.get_finance_institution_display }}</p>
+                            {% endif %}
                         </div>
                     </div>
                     <!-- right side -->

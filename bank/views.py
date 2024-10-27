@@ -44,7 +44,6 @@ def create_account(request):
 
 
 
-
 def view_account(request, account_no):
     # Get the specific account for the logged-in user
     account = get_object_or_404(BankAccount, account_no=account_no, user=request.user)
@@ -56,9 +55,7 @@ def view_account(request, account_no):
         'account': account,
         'transactions': transactions,  # Pass the transactions to the template
     })
-
-
-
+    
 
 # Edit Bank Account View (FR 5)
 
@@ -72,7 +69,6 @@ def edit_account(request, account_id):
     else:
         form = BankAccountForm(instance=account)
     return render(request, 'edit_account.html', {'form': form, 'account': account})
-
 
 
 # Delete Bank Account View (FR 6)

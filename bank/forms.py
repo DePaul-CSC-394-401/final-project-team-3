@@ -89,3 +89,6 @@ class BankAccountForm(forms.ModelForm):
             
             if not routing_no or not account_no:
                 raise forms.ValidationError("Account Balance, Routing Number, and Account Number are required for savings or checking accounts.")
+                
+                
+

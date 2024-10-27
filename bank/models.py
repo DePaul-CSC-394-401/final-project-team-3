@@ -63,12 +63,6 @@ class BankAccount(models.Model):
         if not self.pk and self.account_type == 'credit':
             # If it's a credit account being created, set the balance to 0
             self.account_balance = 0.00
-
-            # Validate that all required card fields are present
-            if not self.card_number or not self.name_on_card or not self.card_institution:
-                raise ValueError(
-                    "Credit Card Number, Name on Card, and Card Institution are required for credit accounts.")
-
         super().save(*args, **kwargs)
 
     def __str__(self):

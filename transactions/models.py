@@ -12,11 +12,25 @@ class Transaction(models.Model):
         ('deposit', 'Deposit'),
     ]
 
+    TRANSACTION_CATEGORIES = [
+        ('bills', 'Bills & Utilities'),
+        ('food', 'Food & Dining'),
+        ('shopping', 'Shopping'),
+        ('transport', 'Transportation'),
+        ('entertainment', 'Entertainment'),
+        ('health', 'Healthcare'),
+        ('credit', 'Credit Card Payment'),
+        ('income', 'Income'),
+        ('transfer', 'Transfer'),
+        ('other', 'Other'),
+    ]
+
     def generate_transaction_id():
         return ''.join(random.choices(string.ascii_letters + string.digits, k=10))
 
     transaction_id = models.CharField(max_length=10, unique=True, default=generate_transaction_id, editable=False)
     transaction_type = models.CharField(max_length=10, choices=TRANSACTION_TYPES)
+    category = models.CharField(max_length=20, choices=TRANSACTION_CATEGORIES, default='other')
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     date = models.DateField(default=timezone.now)

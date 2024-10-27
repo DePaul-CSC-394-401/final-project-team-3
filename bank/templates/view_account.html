@@ -42,7 +42,6 @@
                                 <p><strong>Card Number:</strong> {{ account.card_number }}</p>
                                 <p><strong>Card Name:</strong> {{ account.name_on_card }}</p>
                                 <p><strong>Card Institution:</strong> {{ account.get_card_institution_display }}</p>
-                                <p><strong>Financial Institution:</strong> {{ account.get_finance_institution_display }}</p>
                             {% else %}
                                 <p><strong>Account Type:</strong><span class="masked"> {{ account.account_type }}</span></p>
                                 <p><strong>Account Number:</strong> {{ account.account_no }}</p>

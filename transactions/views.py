@@ -1,8 +1,3 @@
-
-from django.shortcuts import render
-
-# Create your views here.
-
 from django.shortcuts import render, redirect
 from .models import Transaction
 from .forms import PurchaseForm, WithdrawForm, DepositForm
@@ -16,6 +11,7 @@ def add_purchase(request):
         if form.is_valid():
             transaction = form.save(commit=False)
             transaction.transaction_type = 'purchase'
+            # Category is handled by the form, no need for default
 
             # Adjust the balance for the purchase
             bank_account = transaction.bank_account
@@ -29,10 +25,7 @@ def add_purchase(request):
 
             transaction.save()
             return redirect('transaction_list')
-    else:
-        form = PurchaseForm(user=request.user)
-
-    return render(request, 'add_purchase.html', {'form': form})
+    return redirect('transaction_list')  # Redirect if not POST or form invalid
 
 
 def add_withdraw(request):
@@ -42,6 +35,10 @@ def add_withdraw(request):
             transaction = form.save(commit=False)
             transaction.transaction_type = 'withdraw'
 
+            # Set default category to 'transfer' if none selected
+            if not transaction.category:
+                transaction.category = 'transfer'
+
             # Adjust the balance for the withdrawal
             bank_account = transaction.bank_account
             bank_account.account_balance -= Decimal(transaction.amount)
@@ -49,10 +46,7 @@ def add_withdraw(request):
 
             transaction.save()
             return redirect('transaction_list')
-    else:
-        form = WithdrawForm(user=request.user)
-
-    return render(request, 'add_withdraw.html', {'form': form})
+    return redirect('transaction_list')  # Redirect if not POST or form invalid
 
 
 def add_deposit(request):
@@ -61,6 +55,14 @@ def add_deposit(request):
         if form.is_valid():
             transaction = form.save(commit=False)
             transaction.transaction_type = 'deposit'
+
+            # Set default category based on the transaction
+            if not transaction.category:
+                # If it's a credit card account, default to 'credit'
+                if transaction.bank_account.account_type == 'credit':
+                    transaction.category = 'credit'
+                else:
+                    transaction.category = 'income'
 
             # Adjust the balance for the deposit
             bank_account = transaction.bank_account
@@ -74,10 +76,8 @@ def add_deposit(request):
 
             transaction.save()
             return redirect('transaction_list')
-    else:
-        form = DepositForm(user=request.user)
+    return redirect('transaction_list')  # Redirect if not POST or form invalid
 
-    return render(request, 'add_deposit.html', {'form': form})
 
 def transaction_list(request):
     # Get the user's bank accounts
@@ -99,6 +99,11 @@ def transaction_list(request):
     if sort_by == 'date' and selected_date:
         transactions = transactions.filter(date=selected_date)
 
+    # Filter by category if specified
+    selected_category = request.GET.get('category')
+    if selected_category:
+        transactions = transactions.filter(category=selected_category)
+
     # Apply default sorting (by date)
     transactions = transactions.order_by('-date')
 
@@ -107,6 +112,9 @@ def transaction_list(request):
     withdraw_form = WithdrawForm(user=request.user)
     purchase_form = PurchaseForm(user=request.user)
 
+    # Get unique categories for the filter dropdown
+    categories = Transaction.TRANSACTION_CATEGORIES
+
     return render(request, 'transaction_list.html', {
         'transactions': transactions,
         'accounts': accounts,
@@ -114,43 +122,6 @@ def transaction_list(request):
         'deposit_form': deposit_form,
         'withdraw_form': withdraw_form,
         'purchase_form': purchase_form,
+        'categories': categories,  # Add categories for filtering
+        'selected_category': selected_category,  # Currently selected category
     })
-
-
-# Add Transaction View (for adding new transactions)
-# def add_transaction(request):
-#     if request.method == 'POST':
-#         #form = TransactionForm(request.POST)
-#         form = TransactionForm(user=request.user, data=request.POST)  # Pass the user here
-#         if form.is_valid():
-#             transaction = form.save(commit=False)  # Don't save to DB yet, we need to modify the account balance
-#
-#             #ADDED THIS LINE
-#             #transaction.user = request.user
-#
-#             # Get the associated bank account
-#             bank_account = transaction.bank_account
-#
-#             # Update the balance based on the account type and transaction type
-#             if bank_account.account_type == 'credit':
-#                 print(f"Credit card detected: {bank_account.account_name}")  # Debug print
-#                 print(f"Transaction amount: {type(transaction.amount)}")  # Debugging print
-#                 bank_account.account_balance = bank_account.account_balance + transaction.amount
-#             else:
-#                 print(f"Non-credit account detected: {bank_account.account_name}")  # Debug print
-#                 print(f"Transaction amount: {transaction.amount}")  # Debugging print
-#
-#                 bank_account.account_balance = bank_account.account_balance - transaction.amount
-#
-#             # Save the updated balance to the database
-#             bank_account.save()
-#
-#             # Now save the transaction itself
-#             transaction.save()
-#
-#             return redirect('transaction_list')
-#     else:
-#         #form = TransactionForm()
-#         form = TransactionForm(user=request.user)  # Pass the user here
-#
-#     return render(request, 'add_transaction.html', {'form': form})

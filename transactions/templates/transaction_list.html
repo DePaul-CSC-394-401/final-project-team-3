@@ -63,7 +63,18 @@
                             <option value="account" {% if request.GET.sort_by == 'account' %}selected{% endif %}>Account</option>
                         </select>
                     </div>
-
+                    <!-- Category Filter (Always visible) -->
+                    <div id="category_filter" class="col-md-4">
+                        <label for="category" class="form-label">Filter by Category:</label>
+                        <select name="category" id="category" onchange="this.form.submit()" class="form-select">
+                            <option value="">All Categories</option>
+                            {% for category_code, category_name in categories %}
+                                <option value="{{ category_code }}" {% if selected_category == category_code %}selected{% endif %}>
+                                    {{ category_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
                     <!-- Account filter dropdown (Set to col-md-6 to match the "Sort By" dropdown) -->
                     <div id="account_filter" class="col-md-6" style="display:none;">
                         <label for="account" class="form-label">Select Account:</label>
@@ -89,6 +100,7 @@
             <a href="{% url 'transaction_list' %}" class="btn btn-secondary w-100">Remove Filters</a>
         </div>
 
+        <!-- Transactions Table -->
         <div class="card shadow-sm mt-4">
             <div class="card-header bg-info text-white d-flex justify-content-between">
                 <h5 class="mb-0">Transactions</h5>
@@ -99,7 +111,9 @@
                         <tr>
                             <th>Name</th>
                             <th>Type</th>
+                            <th>Category</th>
                             <th>Date</th>
+                            <th>Account</th>
                             <th class="text-end">Amount ($)</th>
                         </tr>
                     </thead>
@@ -108,12 +122,14 @@
                             <tr>
                                 <td>{{ transaction.name }}</td>
                                 <td>{{ transaction.transaction_type }}</td>
+                                <td>{{ transaction.get_category_display }}</td>
                                 <td>{{ transaction.date }}</td>
+                                <td>{{ transaction.bank_account.account_name }}</td>
                                 <td class="text-end">${{ transaction.amount }}</td>
                             </tr>
                         {% empty %}
                             <tr>
-                                <td colspan="4" class="text-center text-muted">No Transactions.</td>
+                                <td colspan="6" class="text-center text-muted">No Transactions.</td>
                             </tr>
                         {% endfor %}
                     </tbody>

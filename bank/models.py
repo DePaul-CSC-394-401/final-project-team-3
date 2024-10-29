@@ -1,6 +1,6 @@
 from django.db import models
 import random
-from django.contrib.auth.models import User  # Import the User model
+from django.contrib.auth.models import User
 
 
 class BankAccount(models.Model):
@@ -30,7 +30,7 @@ class BankAccount(models.Model):
         ('VISA', 'Visa'),
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # Link to the User model
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     def generate_account_number():
         while True:
@@ -59,9 +59,9 @@ class BankAccount(models.Model):
     card_institution = models.CharField(max_length=20, choices=CC_INSTITUTIONS, blank=True, null=True)
 
     def save(self, *args, **kwargs):
-        # Check if the account is being created (i.e., it doesn't have an ID yet)
+        # xheck if the account is being created
         if not self.pk and self.account_type == 'credit':
-            # If it's a credit account being created, set the balance to 0
+            # ff it's a credit account set the balance to 0
             self.account_balance = 0.00
         super().save(*args, **kwargs)
 

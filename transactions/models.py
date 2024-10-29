@@ -34,9 +34,9 @@ class Transaction(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     date = models.DateField(default=timezone.now)
-    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)  # Default value of 0.0
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     bank_account = models.ForeignKey(BankAccount, to_field='account_no', on_delete=models.CASCADE)
-    #user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # Link to the User model
+    #user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return f"{self.name} | {self.transaction_type.title()} | {self.bank_account} | ${self.amount}"

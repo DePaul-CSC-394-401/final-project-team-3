@@ -18,7 +18,7 @@ class BankAccountForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        # Creates IDs for all BankAccount fields
+        # creating IDs
         super(BankAccountForm, self).__init__(*args, **kwargs)
         self.fields['account_name'].widget.attrs.update({'id': 'id_account_name'})
         self.fields['account_type'].widget.attrs.update({'id': 'id_account_type'})
@@ -30,7 +30,7 @@ class BankAccountForm(forms.ModelForm):
         self.fields['card_institution'].widget.attrs.update({'id': 'id_card_institution'})
         self.fields['finance_institution'].widget.attrs.update({'id': 'id_finance_institution'})
 
-        # Makes the following fields uneditable in the edit_account page 
+        # uneditable fields in edit_account
         if self.instance and self.instance.pk:  
             self.fields['routing_no'].disabled = True
             self.fields['account_no'].disabled = True
@@ -39,14 +39,14 @@ class BankAccountForm(forms.ModelForm):
 
             account_type = self.instance.account_type
 
-        # Makes the following fields uneditable in the create_account page
+        # uneditable fields in create_account
         else:
             self.fields['routing_no'].disabled = True
             self.fields['account_no'].disabled = True
 
             account_type = self.data.get('account_type', '')
 
-        # Establishes what fields are required if "credit" account_type is chosen
+        # establishes what fields are required if "credit" account_type is chosen
         if account_type == 'credit':
             self.fields['account_balance'].required = False
             self.fields['routing_no'].required = False
@@ -71,7 +71,7 @@ class BankAccountForm(forms.ModelForm):
             name_on_card = cleaned_data.get("name_on_card")
             card_institution = cleaned_data.get("card_institution")
 
-            # Verifies that all CC fields are filled out before creating account
+            # verifies that all cc fields are filled out before creating account
             if not card_number or not name_on_card or not card_institution:
                 raise forms.ValidationError(
                     "Credit Card Number, Name on Card, and Card Institution are required for credit accounts."
@@ -81,7 +81,7 @@ class BankAccountForm(forms.ModelForm):
             routing_no = cleaned_data.get("routing_no")
             account_no = cleaned_data.get("account_no")
 
-            # Verifies that all non-CC fields are filled out before creating account
+            # verifies that all non cc fields are filled out before creating account
             if account_balance is None:
                 raise forms.ValidationError(
                     "Account Balance is required for savings or checking accounts."

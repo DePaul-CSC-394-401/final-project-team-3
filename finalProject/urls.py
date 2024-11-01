@@ -33,4 +33,5 @@ urlpatterns = [
     path('', include('transactions.urls')),
 
     path('auth/', include('UserAuth.urls')),
+    path('budgets/', include('budget.urls', namespace='budget')),
 ]

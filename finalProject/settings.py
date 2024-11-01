@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'UserAuth',
     'crispy_forms',
     'crispy_bootstrap5',
+    'budget',
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -90,10 +91,10 @@ WSGI_APPLICATION = 'finalProject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'bankapp',  # The name of the database you created
-        'USER': 'jaimecastaneda',   # Your PostgreSQL user
-        'PASSWORD': 'banking',     # Your PostgreSQL password
-        'HOST': 'db',             # or the address of your database server
+        'NAME': 'FinanceApp',  # The name of the database you created
+        'USER': 'koji',   # Your PostgreSQL user
+        'PASSWORD': 'csc394',     # Your PostgreSQL password
+        'HOST': 'localhost',             # or the address of your database server
         'PORT': '5432',                          # leave empty for default
     }
 }

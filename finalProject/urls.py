@@ -33,5 +33,6 @@ urlpatterns = [
     path('', include('transactions.urls')),
 
     path('auth/', include('UserAuth.urls')),
+    path('budgets/', include('budget.urls', namespace='budget')),
     path('recurring/', include('recurring.urls')),
 ]

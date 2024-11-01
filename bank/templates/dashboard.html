@@ -62,6 +62,9 @@
                 <div class="flex-grow-1 text-end">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#purchaseModal">Add Purchase</button>
                 </div>
+                <div class="flex-grow-1 text-end">
+                    <a href="{% url 'budget:budget_list' %}" class="btn btn-primary">Manage Budgets</a>
+                </div>
                 <a href="{% url 'recurring_transaction_list' %}">Recurring Transactions</a>
             </div>
 
@@ -126,7 +129,7 @@
                                 <tr>
                                     <td>{{ transaction.name }}</td>
                                     <td>{{ transaction.transaction_type }}</td>
-                                    <td>{{ transaction.date|date:"F j, Y" }}</td>
+                                    <td>{{ transaction.date }}</td>
                                     <td class="text-end">${{ transaction.amount }}</td>
                                 </tr>
                             {% empty %}

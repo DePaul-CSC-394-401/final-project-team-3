@@ -1,0 +1,169 @@
+{% load crispy_forms_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budgets</title>
+    <!-- Bootswatch CSS -->
+    <link rel="stylesheet" href="https://bootswatch.com/5/zephyr/bootstrap.min.css">
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Your Budgets</h2>
+
+        <!-- Add Budget Button -->
+        <div class="text-end mb-4">
+            <a href="{% url 'budget:budget_create' %}" class="btn btn-primary">Create New Budget</a>
+        </div>
+
+        <!-- Account-Based Budgets -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Account Budgets</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Account</th>
+                                <th>Allocation</th>
+                                <th>Spent</th>
+                                <th>Remaining</th>
+                                <th>Progress</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for budget in account_budgets %}
+                                <tr>
+                                    <td>{{ budget.name }}</td>
+                                    <td>{{ budget.account.account_name }}</td>
+                                    <td>
+                                        {% if budget.allocation_type == 'fixed' %}
+                                            ${{ budget.allocation_amount }}
+                                        {% else %}
+                                            {{ budget.allocation_amount }}%
+                                        {% endif %}
+                                    </td>
+                                    <td>${{ budget.current_amount_spent }}</td>
+                                    <td>${{ budget.get_remaining_budget }}</td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar
+                                                {% if budget.get_percentage_used > 90 %}bg-danger
+                                                {% elif budget.get_percentage_used > 70 %}bg-warning
+                                                {% else %}bg-success{% endif %}"
+                                                role="progressbar"
+                                                style="width: {{ budget.get_percentage_used }}%"
+                                                aria-valuenow="{{ budget.get_percentage_used }}"
+                                                aria-valuemin="0"
+                                                aria-valuemax="100">
+                                                {{ budget.get_percentage_used|floatformat:1 }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'budget:budget_detail' budget.pk %}" class="btn btn-sm btn-info">View</a>
+                                        <a href="{% url 'budget:budget_edit' budget.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                                        <a href="{% url 'budget:budget_delete' budget.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">No account budgets created yet.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category-Based Budgets -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Category Budgets</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Allocation</th>
+                                <th>Spent</th>
+                                <th>Remaining</th>
+                                <th>Progress</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for budget in category_budgets %}
+                                <tr>
+                                    <td>{{ budget.name }}</td>
+                                    <td>{{ budget.get_category_display }}</td>
+                                    <td>
+                                        {% if budget.allocation_type == 'fixed' %}
+                                            ${{ budget.allocation_amount }}
+                                        {% else %}
+                                            {{ budget.allocation_amount }}%
+                                        {% endif %}
+                                    </td>
+                                    <td>${{ budget.current_amount_spent }}</td>
+                                    <td>${{ budget.get_remaining_budget }}</td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar
+                                                {% if budget.get_percentage_used > 90 %}bg-danger
+                                                {% elif budget.get_percentage_used > 70 %}bg-warning
+                                                {% else %}bg-success{% endif %}"
+                                                role="progressbar"
+                                                style="width: {{ budget.get_percentage_used }}%"
+                                                aria-valuenow="{{ budget.get_percentage_used }}"
+                                                aria-valuemin="0"
+                                                aria-valuemax="100">
+                                                {{ budget.get_percentage_used|floatformat:1 }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'budget:budget_detail' budget.pk %}" class="btn btn-sm btn-info">View</a>
+                                        <a href="{% url 'budget:budget_edit' budget.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                                        <a href="{% url 'budget:budget_delete' budget.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">No category budgets created yet.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to Dashboard Button -->
+        <div class="text-center mt-4 mb-4">
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary w-100">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">© 2024 Team 3</span>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

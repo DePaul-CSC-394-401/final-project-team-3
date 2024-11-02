@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'bank',
     'transactions',
     'UserAuth',
+    'recurring',
     'crispy_forms',
     'crispy_bootstrap5',
 ]
@@ -93,7 +94,7 @@ DATABASES = {
         'NAME': 'bankapp',  # The name of the database you created
         'USER': 'jaimecastaneda',   # Your PostgreSQL user
         'PASSWORD': 'banking',     # Your PostgreSQL password
-        'HOST': 'db',             # or the address of your database server
+        'HOST': 'localhost',             # or the address of your database server
         'PORT': '5432',                          # leave empty for default
     }
 }

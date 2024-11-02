@@ -16,6 +16,21 @@
     <div class="container mt-5">
         <h2 class="text-center mb-4">Your Budgets</h2>
 
+
+        <!-- Message Display Section -->
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    {% if message.tags == "error" %}
+                        <div class="alert {{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+        <!-- End of Message Display Section -->
+
         <!-- Add Budget Button -->
         <div class="text-end mb-4">
             <a href="{% url 'budget:budget_create' %}" class="btn btn-primary">Create New Budget</a>

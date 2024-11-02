@@ -46,15 +46,51 @@ def budget_create(request):
     if request.method == 'POST':
         form = BudgetForm(request.POST, user=request.user)
         if form.is_valid():
+
+            category = form.cleaned_data.get('category')
+            account = form.cleaned_data['account']
+            period_type = form.cleaned_data['period_type']
+            #budget_type = form.cleaned_data['budget_type']  # Added this line
+            
+            # Check for account-based budget if 'account' is provided
+            if account:
+                existing_budget = Budget.objects.filter(
+                    user=request.user,
+                    account=account,
+                    period_type=period_type
+                ).exists()
+
+                if existing_budget:
+                    messages.error(request, 'A budget with this account and period type already exists.')
+                    #return render(request, 'budget_form.html', {'form': form, 'title': 'Create Budget'})
+                    return redirect('budget:budget_list')
+            
+            # Check for category-based budget if 'category' is provided
+            elif category:
+                existing_budget = Budget.objects.filter(
+                    user=request.user,
+                    category=category,
+                    period_type=period_type
+                ).exists()
+
+                if existing_budget:
+                    messages.error(request, 'A budget with this category and period type already exists.')
+                    #return render(request, 'budget_form.html', {'form': form, 'title': 'Create Budget'})
+                    return redirect('budget:budget_list')
+
+
             print('form.is_valid')
             budget = form.save(commit=False)
             budget.user = request.user
             budget.save()
             messages.success(request, 'Budget created successfully!')
-            return redirect('budget_list')
+            return redirect('budget:budget_list')
     else:
         form = BudgetForm(user=request.user)
 
+    print("Rendering form")
+    # Debug: print the form's HTML representation
+    print(form.as_p())  # You can also use as_table() or as_ul()
     return render(request, 'budget_form.html', {'form': form, 'title': 'Create Budget'})
 
 
@@ -68,7 +104,7 @@ def budget_edit(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, 'Budget updated successfully!')
-            return redirect('budget_list')
+            return redirect('budget:budget_list')
     else:
         form = BudgetForm(instance=budget, user=request.user)
 
@@ -83,6 +119,6 @@ def budget_delete(request, pk):
     if request.method == 'POST':
         budget.delete()
         messages.success(request, 'Budget deleted successfully!')
-        return redirect('budget_list')
+        return redirect('budget:budget_list')
 
     return render(request, 'budget_confirm_delete.html', {'budget': budget})

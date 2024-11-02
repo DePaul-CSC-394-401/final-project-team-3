@@ -7,8 +7,7 @@ from bank.models import BankAccount
 class BudgetForm(forms.ModelForm):
     class Meta:
         model = Budget
-        fields = ['name', 'budget_type', 'account', 'category',
-                  'allocation_type', 'allocation_amount', 'period_type', 'start_date']
+        fields = ['name', 'budget_type', 'account', 'category', 'allocation_amount', 'period_type', 'start_date']
         widgets = {
             'start_date': forms.DateInput(attrs={'type': 'date'}),
         }
@@ -29,7 +28,8 @@ class BudgetForm(forms.ModelForm):
         self.fields['category'].required = False
 
         # Add help text
-        self.fields['allocation_amount'].help_text = 'Enter amount in dollars or percentage (0-100)'
+        #self.fields['allocation_amount'].help_text = 'Enter amount in dollars or percentage (0-100)'
+        self.fields['allocation_amount'].help_text = 'Enter a fixed amount in dollars.'
 
     def clean(self):
         cleaned_data = super().clean()
@@ -45,8 +45,8 @@ class BudgetForm(forms.ModelForm):
         if budget_type == 'category' and not category:
             raise forms.ValidationError('Category is required for category-based budgets')
 
-        if allocation_type == 'percentage' and allocation_amount:
-            if allocation_amount > 100 or allocation_amount < 0:
-                raise forms.ValidationError('Percentage must be between 0 and 100')
+        #if allocation_type == 'percentage' and allocation_amount:
+        #    if allocation_amount > 100 or allocation_amount < 0:
+        #        raise forms.ValidationError('Percentage must be between 0 and 100')
 
         return cleaned_data

@@ -10,6 +10,12 @@
     <script>
         function toggleFields() {
             var budgetType = document.getElementById('id_budget_type').value;
+
+            if (!budgetType) {
+                console.error("Budget type element not found!");
+                return; // Exit the function if the element does not exist
+            }
+
             var accountField = document.getElementById('div_id_account');
             var categoryField = document.getElementById('div_id_category');
 
@@ -22,14 +28,22 @@
             }
         }
 
-        window.onload = function() {
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize fields based on the current budget type
             toggleFields();
-        };
+
+            // Add event listener for changes to the budget type field
+            var budgetTypeField = document.getElementById('id_budget_type');
+            if (budgetTypeField) {
+                budgetTypeField.addEventListener('change', toggleFields);
+            }
+        });
     </script>
 </head>
 <body>
     <div class="container mt-5">
         <h2 class="text-center mb-4">{{ title }}</h2>
+
 
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-info text-white">
@@ -41,37 +55,37 @@
 
                     <div class="row">
                         <div class="col-md-6">
-                            {{ form.name|crispy }}
+                            {{ form.name }}
                         </div>
                         <div class="col-md-6">
-                            {{ form.budget_type|crispy }}
+                            {{ form.budget_type }}
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6" id="div_id_account">
-                            {{ form.account|crispy }}
+                            {{ form.account }}
                         </div>
                         <div class="col-md-6" id="div_id_category">
-                            {{ form.category|crispy }}
+                            {{ form.category }}
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6">
-                            {{ form.allocation_type|crispy }}
+                            {{ form.allocation_type }}
                         </div>
                         <div class="col-md-6">
-                            {{ form.allocation_amount|crispy }}
+                            {{ form.allocation_amount }}
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6">
-                            {{ form.period_type|crispy }}
+                            {{ form.period_type }}
                         </div>
                         <div class="col-md-6">
-                            {{ form.start_date|crispy }}
+                            {{ form.start_date }}
                         </div>
                     </div>
 
@@ -93,9 +107,5 @@
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Add event listener for budget type changes -->
-    <script>
-        document.getElementById('id_budget_type').addEventListener('change', toggleFields);
-    </script>
 </body>
 </html>

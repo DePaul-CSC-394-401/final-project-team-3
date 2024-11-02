@@ -15,7 +15,7 @@ class Budget(models.Model):
 
     ALLOCATION_TYPES = [
         ('fixed', 'Fixed Amount'),
-        ('percentage', 'Percentage of Balance'),
+        #('percentage', 'Percentage of Balance'),
     ]
 
     PERIOD_TYPES = [
@@ -45,11 +45,12 @@ class Budget(models.Model):
         help_text="Required for category-based budgets"
     )
 
-    allocation_type = models.CharField(max_length=10, choices=ALLOCATION_TYPES)
+    #allocation_type = models.CharField(max_length=10, choices=ALLOCATION_TYPES)
+    allocation_type = models.CharField(max_length=10, default='fixed')
     allocation_amount = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        help_text="Fixed amount or percentage depending on allocation type"
+        #help_text="Fixed amount or percentage depending on allocation type"
     )
 
     period_type = models.CharField(
@@ -68,9 +69,21 @@ class Budget(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = [
-            ['user', 'account', 'period_type'],  # One budget per account per period
-            ['user', 'category', 'period_type']  # One budget per category per period
+        #unique_together = [
+        #    ['user', 'account', 'period_type'],  # One budget per account per period
+        #    ['user', 'category', 'period_type']  # One budget per category per period
+        #]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'account', 'period_type'],
+                name='unique_account_budget',
+                condition=models.Q(account__isnull=False)  # Only applies if account is not null
+            ),
+            models.UniqueConstraint(
+                fields=['user', 'category', 'period_type'],
+                name='unique_category_budget',
+                condition=models.Q(category__isnull=False)  # Only applies if category is not null
+            ),
         ]
 
     def calculate_budget_limit(self):
@@ -90,19 +103,26 @@ class Budget(models.Model):
         if self.period_type == 'monthly':
             period_start = datetime(now.year, now.month, 1).date()
 
+        #added this
+        transactions_start_date = max(self.start_date, period_start)
+
         # Query relevant transactions
         if self.budget_type == 'account':
             transactions = Transaction.objects.filter(
                 bank_account=self.account,
-                date__gte=period_start,
-                date__lte=now
+                #date__gte=period_start,
+                date__gte=transactions_start_date,
+                date__lte=now,
+                transaction_type='purchase'
             )
         else:  # category-based
             transactions = Transaction.objects.filter(
                 bank_account__user=self.user,
                 category=self.category,
-                date__gte=period_start,
-                date__lte=now
+                #date__gte=period_start,
+                date__gte=transactions_start_date,
+                date__lte=now,
+                transaction_type='purchase'
             )
 
         # Calculate total spent
@@ -138,7 +158,7 @@ class Budget(models.Model):
             raise ValueError("Allocation amount must be positive")
 
         # For percentage allocations, ensure it's <= 100
-        if self.allocation_type == 'percentage' and self.allocation_amount > 100:
-            raise ValueError("Percentage allocation cannot exceed 100%")
+        #if self.allocation_type == 'percentage' and self.allocation_amount > 100:
+        #    raise ValueError("Percentage allocation cannot exceed 100%")
 
         super().save(*args, **kwargs)

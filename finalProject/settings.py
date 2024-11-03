@@ -91,9 +91,9 @@ WSGI_APPLICATION = 'finalProject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'bankapp',  # The name of the database you created
-        'USER': 'postgres',   # Your PostgreSQL user
-        'PASSWORD': 'patel474',     # Your PostgreSQL password
+        'NAME': 'FinanceApp',  # The name of the database you created
+        'USER': 'koji',   # Your PostgreSQL user
+        'PASSWORD': 'csc394',     # Your PostgreSQL password
         'HOST': 'localhost',             # or the address of your database server
         'PORT': '5432',                          # leave empty for default
     }

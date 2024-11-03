@@ -1,5 +1,6 @@
 from django import forms
 from .models import RecurringTransaction
+from bank.models import BankAccount
 
 class RecurringTransactionForm(forms.ModelForm):
     class Meta:

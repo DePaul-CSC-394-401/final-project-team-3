@@ -44,7 +44,6 @@
     <div class="container mt-5">
         <h2 class="text-center mb-4">{{ title }}</h2>
 
-
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-info text-white">
                 <h5 class="mb-0">Budget Information</h5>
@@ -53,39 +52,36 @@
                 <form method="post" novalidate>
                     {% csrf_token %}
 
-                    <div class="row">
+                    <div class="row mb-3">
                         <div class="col-md-6">
-                            {{ form.name }}
+                            {{ form.name|as_crispy_field }}
                         </div>
                         <div class="col-md-6">
-                            {{ form.budget_type }}
+                            {{ form.budget_type|as_crispy_field }}
                         </div>
                     </div>
 
-                    <div class="row">
+                    <div class="row mb-3">
                         <div class="col-md-6" id="div_id_account">
-                            {{ form.account }}
+                            {{ form.account|as_crispy_field }}
                         </div>
                         <div class="col-md-6" id="div_id_category">
-                            {{ form.category }}
+                            {{ form.category|as_crispy_field }}
                         </div>
                     </div>
 
-                    <div class="row">
+                    <div class="row mb-3">
                         <div class="col-md-6">
-                            {{ form.allocation_type }}
+                            {{ form.allocation_amount|as_crispy_field }}
                         </div>
                         <div class="col-md-6">
-                            {{ form.allocation_amount }}
+                            {{ form.period_type|as_crispy_field }}
                         </div>
                     </div>
 
-                    <div class="row">
+                    <div class="row mb-3">
                         <div class="col-md-6">
-                            {{ form.period_type }}
-                        </div>
-                        <div class="col-md-6">
-                            {{ form.start_date }}
+                            {{ form.start_date|as_crispy_field }}
                         </div>
                     </div>
 
@@ -106,6 +102,5 @@
 
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>

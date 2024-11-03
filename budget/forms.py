@@ -16,6 +16,15 @@ class BudgetForm(forms.ModelForm):
         user = kwargs.pop('user')
         super().__init__(*args, **kwargs)
 
+        # Set field labels
+        self.fields['name'].label = "Budget Name"
+        self.fields['budget_type'].label = "Budget Type"
+        self.fields['account'].label = "Account"
+        self.fields['category'].label = "Category"
+        self.fields['allocation_amount'].label = "Allocation Amount"
+        self.fields['period_type'].label = "Period Type"
+        self.fields['start_date'].label = "Start Date"
+
         # Filter account choices to user's accounts only
         self.fields['account'].queryset = BankAccount.objects.filter(user=user)
 

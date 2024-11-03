@@ -126,7 +126,7 @@
                                 <tr>
                                     <td>{{ transaction.name }}</td>
                                     <td>{{ transaction.transaction_type }}</td>
-                                    <td>{{ transaction.date }}</td>
+                                    <td>{{ transaction.date|date:"F j, Y" }}</td>
                                     <td class="text-end">${{ transaction.amount }}</td>
                                 </tr>
                             {% empty %}

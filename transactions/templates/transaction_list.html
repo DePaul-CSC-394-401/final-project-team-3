@@ -123,7 +123,7 @@
                                 <td>{{ transaction.name }}</td>
                                 <td>{{ transaction.transaction_type }}</td>
                                 <td>{{ transaction.get_category_display }}</td>
-                                <td>{{ transaction.date }}</td>
+                                <td>{{ transaction.date|date:"F j, Y" }}</td>
                                 <td>{{ transaction.bank_account.account_name }}</td>
                                 <td class="text-end">${{ transaction.amount }}</td>
                             </tr>

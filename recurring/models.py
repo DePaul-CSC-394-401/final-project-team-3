@@ -6,11 +6,21 @@ from django.utils import timezone
 
 class RecurringTransaction(models.Model):
     FREQUENCY_CHOICES = [
-        ('daily', 'Daily'),
-        ('weekly', 'Weekly'),
-        ('biweekly', 'Bi-Weekly'),
+        ('one_minute', 'Every 1 Minute'),  # New option added
         ('monthly', 'Monthly'),
-        ('yearly', 'Yearly'),
+    ]
+
+    TRANSACTION_CATEGORIES = [
+        ('bills', 'Bills & Utilities'),
+        ('food', 'Food & Dining'),
+        ('shopping', 'Shopping'),
+        ('transport', 'Transportation'),
+        ('entertainment', 'Entertainment'),
+        ('health', 'Healthcare'),
+        ('credit', 'Credit Card Payment'),
+        ('income', 'Income'),
+        ('transfer', 'Transfer'),
+        ('other', 'Other'),
     ]
 
     name = models.CharField(max_length=100)
@@ -20,6 +30,7 @@ class RecurringTransaction(models.Model):
     bank_account = models.ForeignKey(BankAccount, on_delete=models.CASCADE)
     start_date = models.DateField(default=timezone.now)
     end_date = models.DateField(null=True, blank=True)
+    category = models.CharField(max_length=20, choices=TRANSACTION_CATEGORIES, default='other')  # New category field
 
     def __str__(self):
         return f"{self.name} ({self.frequency}) - ${self.amount}"

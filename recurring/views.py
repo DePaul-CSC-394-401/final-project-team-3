@@ -12,13 +12,14 @@ def recurring_transaction_list(request):
 
 def add_recurring_transaction(request):
     if request.method == 'POST':
-        form = RecurringTransactionForm(request.POST)
+        form = RecurringTransactionForm(request.POST, user=request.user)
         if form.is_valid():
             recurring_transaction = form.save(commit=False)
+            recurring_transaction.bank_account = form.cleaned_data['bank_account']  # Make sure this is populated
             recurring_transaction.save()
             return redirect('recurring_transaction_list')
     else:
-        form = RecurringTransactionForm()
+        form = RecurringTransactionForm(user=request.user)
     return render(request, 'recurring/add_recurring_transaction.html', {'form': form})
 
 def edit_recurring_transaction(request, pk):

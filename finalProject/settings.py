@@ -14,6 +14,8 @@ from pathlib import Path
 
 SITE_ID = 1
 
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -92,8 +94,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'bankapp',  # The name of the database you created
-        'USER': 'jaimecastaneda',   # Your PostgreSQL user
-        'PASSWORD': 'banking',     # Your PostgreSQL password
+        'USER': 'postgres',   # Your PostgreSQL user
+        'PASSWORD': 'patel474',     # Your PostgreSQL password
         'HOST': 'localhost',             # or the address of your database server
         'PORT': '5432',                          # leave empty for default
     }

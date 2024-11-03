@@ -3,11 +3,16 @@ from .models import BankAccount
 from .forms import BankAccountForm
 from transactions.models import Transaction  # Import the Transaction model
 from transactions.forms import DepositForm, WithdrawForm, PurchaseForm  # Import the forms
+from recurring.utils import generate_recurring_transactions
+from recurring.models import RecurringTransaction
 # Create your views here.
 
 def dashboard(request):
     # get the users bank accounts
+    #generate_recurring_transactions(request.user)
     accounts = BankAccount.objects.filter(user=request.user)
+
+    generate_recurring_transactions(request.user) #recurring transactions
 
     # fetch the 5 most recent transactions for all accounts
     recent_transactions = Transaction.objects.filter(bank_account__in=accounts).order_by('-date')[:5]

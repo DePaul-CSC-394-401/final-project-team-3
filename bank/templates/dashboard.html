@@ -30,7 +30,7 @@
             <div class="collapse navbar-collapse justify-content-end" id="collapsibleNavbar">
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"></a>
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">{{ user.username }}</a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="{% url 'edit_user' %}">Settings</a></li>
                             <li>
@@ -50,22 +50,33 @@
         <div class="container mt-5 pb-5">
             <h2 class="text-center mb-4">Dashboard</h2>
             <h3 class="text-start mb-1">Good Evening!</h3>
-            <h3 class="text-start"><span id="date"></span> </h3>
+            <h4 class="text-start"><span id="date"></span></h4>
 
-            <div class="mb-3 d-flex justify-content-between">
-                <div class="flex-grow-1 text-start">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#depositModal">Add Deposit</button>
-                </div>
-                <div class="flex-grow-1 text-center">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#withdrawModal">Add Withdraw</button>
-                </div>
-                <div class="flex-grow-1 text-end">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#purchaseModal">Add Purchase</button>
-                </div>
-                <div class="flex-grow-1 text-end">
-                    <a href="{% url 'budget:budget_list' %}" class="btn btn-primary">Manage Budgets</a>
-                </div>
-                <a href="{% url 'recurring_transaction_list' %}">Recurring Transactions</a>
+            <div class="d-flex flex-wrap justify-content-center mt-4">
+                <!-- Add Deposit Button -->
+                <button type="button" class="btn btn-primary mx-2 my-1" data-toggle="modal" data-target="#depositModal">
+                    Add Deposit
+                </button>
+        
+                <!-- Add Withdraw Button -->
+                <button type="button" class="btn btn-primary mx-2 my-1" data-toggle="modal" data-target="#withdrawModal">
+                    Add Withdraw
+                </button>
+        
+                <!-- Add Purchase Button -->
+                <button type="button" class="btn btn-primary mx-2 my-1" data-toggle="modal" data-target="#purchaseModal">
+                    Add Purchase
+                </button>
+        
+                <!-- Recurring Transactions Link -->
+                <a href="{% url 'recurring_transaction_list' %}" class="btn btn-primary mx-2 my-1">
+                    Recurring Transactions
+                </a>
+        
+                <!-- Manage Budgets Link -->
+                <a href="{% url 'budget:budget_list' %}" class="btn btn-primary mx-2 my-1">
+                    Manage Budgets
+                </a>
             </div>
 
             <div class="card shadow-sm mt-4">
@@ -80,6 +91,7 @@
                                 <th>Account Name</th>
                                 <th>Account Type</th>
                                 <th class="text-end">Balance ($)</th>
+                                <th class="text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -95,7 +107,10 @@
                                             <div class="btn-group">
                                                 <a href="{% url 'view_account' account.account_no %}" class="btn btn-hover-up btn-secondary">View</a>
                                                 <a href="{% url 'edit_account' account.id %}" class="btn btn-hover-up btn-warning">Edit</a>
-                                                <a href="{% url 'delete_account' account.id %}" class="btn btn-hover-up btn-danger">Delete</a>
+                                                <button type="button" class="btn btn-hover-up btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="{{ account.id }}" data-name="{{ account.account_name }}">
+                                                    Delete
+                                                </button>
+                                                
                                             </div>
                                         </td>
                                     </tr>
@@ -121,6 +136,7 @@
                                 <th>Name</th>
                                 <th>Type</th>
                                 <th>Date</th>
+                                <th>Account</th>
                                 <th class="text-end">Amount ($)</th>
                             </tr>
                         </thead>
@@ -130,11 +146,12 @@
                                     <td>{{ transaction.name }}</td>
                                     <td>{{ transaction.transaction_type }}</td>
                                     <td>{{ transaction.date|date:"F j, Y" }}</td>
+                                    <td>{{ transaction.bank_account.account_name }}</td>
                                     <td class="text-end">${{ transaction.amount }}</td>
                                 </tr>
                             {% empty %}
                                 <tr>
-                                    <td colspan="4" class="text-center text-muted">No Recent Transactions.</td>
+                                    <td colspan="5" class="text-center text-muted">No Recent Transactions.</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -209,6 +226,28 @@
                 </div>
             </div>
 
+            <!-- Delete Confirmation Modal -->
+            <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel">Delete Account</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <p>Are you sure you want to delete the account <strong id="accountName"></strong>?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <form id="deleteForm" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary">Yes, delete</button>
+                            </form>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <footer class="footer mt-auto py-3 bg-light">
@@ -229,5 +268,23 @@
         const date =  (`${month}/${day}/${year}`);
         document.getElementById("date").innerHTML = date;
    </script>
+   <script>
+    // Script to set account details in the delete modal
+    document.addEventListener("DOMContentLoaded", function() {
+        var deleteModal = document.getElementById("deleteModal");
+        deleteModal.addEventListener("show.bs.modal", function(event) {
+            var button = event.relatedTarget;
+            var accountId = button.getAttribute("data-id");
+            var accountName = button.getAttribute("data-name");
+
+            // Set the account name in the modal
+            document.getElementById("accountName").textContent = accountName;
+
+            // Set the form action dynamically
+            var deleteForm = document.getElementById("deleteForm");
+            deleteForm.action = "{% url 'delete_account' 0 %}".replace("0", accountId);
+        });
+    });
+</script>
 </body>
 </html>

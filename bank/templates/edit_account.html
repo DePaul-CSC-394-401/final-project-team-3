@@ -9,40 +9,47 @@
  <link rel="stylesheet" href="https://bootswatch.com/5/zephyr/bootstrap.min.css">
 </head>
 <body>
- <div class="container text-center mt-5" style="width: 500px;">
-    <h1 class="text-center mb-4">Edit Account Information</h1>
-    <div class="card mb-4">
-       <form method="post" class="p-4 rounded">
-          {% csrf_token %}
-          {{ form.account_name|as_crispy_field }}
-          {{ form.account_type|as_crispy_field }}
-          {{ form.account_balance|as_crispy_field }}
-         
-          <!-- Account number and routing number fields (conditionally hidden for credit) -->
-          <div id="bank_fields">
-              {{ form.account_no|as_crispy_field }}
-              {{ form.routing_no|as_crispy_field }}
-          </div>
+    <div class="container text-center mt-5" style="width: 600px;">
+        <h1 class="text-center mb-4">Edit Bank Account Information</h1>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Bank Account Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" class="p-4 rounded">
+                    {% csrf_token %}
+                    {{ form.account_name|as_crispy_field }}
+                    {{ form.account_type|as_crispy_field }}
+                    {{ form.account_balance|as_crispy_field }}
+                    
+                    <!-- Account number and routing number fields (conditionally hidden for credit) -->
+                    <div id="bank_fields">
+                        {{ form.account_no|as_crispy_field }}
+                        {{ form.routing_no|as_crispy_field }}
+                    </div>
 
 
-          {{ form.finance_institution|as_crispy_field }}
+                    {{ form.finance_institution|as_crispy_field }}
 
 
-          <!-- Conditional credit card fields -->
-          <div id="credit_fields" style="display: none;">
-              {{ form.card_number|as_crispy_field }}
-              {{ form.name_on_card|as_crispy_field }}
-              {{ form.card_institution|as_crispy_field }}
-          </div>
+                    <!-- Conditional credit card fields -->
+                    <div id="credit_fields" style="display: none;">
+                        {{ form.card_number|as_crispy_field }}
+                        {{ form.name_on_card|as_crispy_field }}
+                        {{ form.card_institution|as_crispy_field }}
+                    </div>
 
 
-          <button type="submit" class="btn btn-primary btn-hover-up w-100">Save Changes</button>
-       </form>
+                    <button type="submit" class="btn btn-primary btn-hover-up w-100">Save Changes</button>
+                </form>
+            </div>
+        </div>
+        <div class="mb-4">
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-hover-up w-100">Back to Dashboard</a>
+        </div>
+
     </div>
-    <div class="mb-4 text-center">
-        <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-hover-up w-100">Back to Dashboard</a>
-    </div>
- </div>
   <footer class="footer mt-auto py-3 bg-light">
     <div class="container text-center">
        <span class="text-muted">© 2024 Team 3</span>

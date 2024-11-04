@@ -3,25 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Recurring Transactions</title>
+    <!-- Bootswatch CSS -->
+    <link rel="stylesheet" href="https://bootswatch.com/5/zephyr/bootstrap.min.css">
 </head>
 <body>
-    <a href="{% url 'dashboard' %}">Back to Dashboard</a>
-    <a href="{% url 'add_recurring_transaction' %}">Add</a>
-    {% for transaction in recurring_transactions %}
-        <td>{{ transaction.name }}</td>
-        <td>${{ transaction.amount }}</td>
-        <td>{{ transaction.get_frequency_display }}</td>
-        <td>{{ transaction.start_date }}</td>
-        <td>{{ transaction.end_date|default:"N/A" }}</td>
-        <td>{{ transaction.bank_account.account_name }}</td>
-        <td>{{ transaction.get_category_display }}</td>
-        <td>
-            <a href="{% url 'edit_recurring_transaction' transaction.pk %}">Edit</a> |
-            <a href="{% url 'delete_recurring_transaction' transaction.pk %}">Delete</a>
-        </td>
-    {% empty %}
-        <p>No Recurring Transactions.</p>
-    {% endfor %}
+
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Your Recurring Transactions</h2>
+
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-info text-white d-flex justify-content-between">
+                <h5 class="mb-0">Recurring Transactions ({{ recurring_transactions|length }})</h5>
+                <a href="{% url 'add_recurring_transaction' %}" class="btn btn-secondary btn-sm">Add</a>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Frequency</th>
+                            <th>Account</th>
+                            <th>Category</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Amount</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in recurring_transactions %}
+                            <tr>
+                                <td>{{ transaction.name }}</td>
+                                <td>{{ transaction.get_frequency_display }}</td>
+                                <td>{{ transaction.bank_account.account_name }}</td>
+                                <td>{{ transaction.get_category_display }}</td>
+                                <td>{{ transaction.start_date }}</td>
+                                <td>{{ transaction.end_date|default:"N/A" }}</td>
+                                <td>${{ transaction.amount }}</td>
+                                <td class="text-end">
+                                    <div class="btn-group">
+                                        <a href="{% url 'edit_recurring_transaction' transaction.pk %}" class="btn btn-warning">Edit</a>
+                                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="{{ transaction.pk }}" data-name="{{ transaction.name }}">
+                                            Delete
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">No Recurring Transations.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Single Delete Confirmation Modal -->
+            <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel">Delete Recurring Transaction</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <p>Are you sure you want to delete "<strong id="transactionName"></strong>"?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <form id="deleteForm" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary">Yes, delete</button>
+                            </form>
+                            <a href="{% url 'recurring_transaction_list' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="text-center mt-4 mb-4">
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary w-100">Back to Dashboard</a>
+        </div>
+    </div>
+
+
+
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">© 2024 Team 3</span>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- JavaScript to handle modal population -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var deleteModal = document.getElementById("deleteModal");
+            deleteModal.addEventListener("show.bs.modal", function(event) {
+                var button = event.relatedTarget;
+                var transactionId = button.getAttribute("data-id");
+                var transactionName = button.getAttribute("data-name");
+    
+                // Set the transaction name in the modal
+                document.getElementById("transactionName").textContent = transactionName;
+    
+                // Set the form action dynamically
+                var deleteForm = document.getElementById("deleteForm");
+                deleteForm.action = "{% url 'delete_recurring_transaction' 0 %}".replace("0", transactionId);
+            });
+        });
+    </script>
 </body>
 </html>

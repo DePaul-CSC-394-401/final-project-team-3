@@ -34,47 +34,56 @@
     </script>
 </head>
 <body>
-    <div class="container mt-5" style="width: 500px;">
+    <div class="container mt-5" style="width: 600px;">
         <h2 class="text-center mb-4">Create Bank Account</h2>
-        <div class="card mb-4">
-            <form method="post" class="p-4 rounded">
-                {% csrf_token %}
-                <div class="mb-3">
-                    {{ form.account_name|as_crispy_field }}
-                </div>
-                <div class="mb-3">
-                    {{ form.account_type|as_crispy_field }}
-                </div>
-                <div class="mb-3">
-                    {{ form.finance_institution|as_crispy_field }}
-                </div>
 
-                <div id="savings_checking_fields" style="display: none;">
-                    <div class="form-group">
-                        {{ form.account_balance|as_crispy_field }}
-                    </div>
-                    <div class="form-group">
-                        {{ form.account_no|as_crispy_field }}
-                    </div>
-                    <div class="form-group">
-                        {{ form.routing_no|as_crispy_field }}
-                    </div>
-                </div>
-                
-                <div id="credit_card_fields" style="display: none;">
-                    <div class="form-group">
-                        {{ form.card_number|as_crispy_field }}
-                    </div>
-                    <div class="form-group">
-                        {{ form.name_on_card|as_crispy_field }}
-                    </div>
-                    <div class="form-group">
-                        {{ form.card_institution|as_crispy_field }}
-                    </div>
-                </div>
 
-                <button type="submit" class="btn btn-primary btn-hover-up w-100">Create Account</button>
-            </form>
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Bank Account Information</h5>
+            </div>
+
+
+            <div class="card-body">
+                <form method="post" class="p-4 rounded">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        {{ form.account_name|as_crispy_field }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.account_type|as_crispy_field }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.finance_institution|as_crispy_field }}
+                    </div>
+
+                    <div id="savings_checking_fields" style="display: none;">
+                        <div class="form-group">
+                            {{ form.account_balance|as_crispy_field }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.account_no|as_crispy_field }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.routing_no|as_crispy_field }}
+                        </div>
+                    </div>
+                    
+                    <div id="credit_card_fields" style="display: none;">
+                        <div class="form-group">
+                            {{ form.card_number|as_crispy_field }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.name_on_card|as_crispy_field }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.card_institution|as_crispy_field }}
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-hover-up w-100">Create Account</button>
+                </form>
+            </div>
         </div>
         <div class="text-center mb-4">
             <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-hover-up w-100">Back to Dashboard</a>

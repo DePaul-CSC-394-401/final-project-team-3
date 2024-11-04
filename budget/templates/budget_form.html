@@ -86,11 +86,13 @@
                     </div>
 
                     <div class="d-flex justify-content-center gap-2 mt-4">
-                        <button type="submit" class="btn btn-primary">Save Budget</button>
-                        <a href="{% url 'budget:budget_list' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary w-100">Save Budget</button>
                     </div>
                 </form>
             </div>
+        </div>
+        <div class="text-center mb-4">
+            <a href="{% url 'budget:budget_list' %}" class="btn btn-secondary w-100">Back to Budgets</a>
         </div>
     </div>
 

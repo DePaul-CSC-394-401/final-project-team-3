@@ -3,6 +3,14 @@ from .models import Transaction
 from .forms import PurchaseForm, WithdrawForm, DepositForm
 from .models import BankAccount
 from decimal import Decimal
+from django.db.models import Sum
+from django.db.models.functions import TruncMonth
+import json
+from django.db.models import Min, Max
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta  # You might need to install python-dateutil
+
+
 
 
 def add_purchase(request):
@@ -99,13 +107,83 @@ def transaction_list(request):
     # default sorting
     transactions = transactions.order_by('-date')
 
-    # forns
+    # forms
     deposit_form = DepositForm(user=request.user)
     withdraw_form = WithdrawForm(user=request.user)
     purchase_form = PurchaseForm(user=request.user)
 
+    ## Start of visualizations
     # unique categories
     categories = Transaction.TRANSACTION_CATEGORIES
+
+    category_totals = list(Transaction.objects
+                           .filter(bank_account__in=accounts)
+                           .values('category')
+                           .annotate(total=Sum('amount'))
+                           .order_by('-total'))
+
+    # Convert Decimal to float for JSON serialization
+    for item in category_totals:
+        item['total'] = float(item['total'])
+
+    # Monthly totals
+    monthly_totals = list(Transaction.objects
+                          .filter(bank_account__in=accounts)
+                          .annotate(month=TruncMonth('date'))
+                          .values('month')
+                          .annotate(total=Sum('amount'))
+                          .order_by('month'))
+
+    monthly_totals_json = json.dumps([{
+        'month': item['month'].strftime('%Y-%m-%d'),  # Format date as string
+        'total': float(item['total'])
+    } for item in monthly_totals])
+
+    # Convert Decimal to float
+    for item in monthly_totals:
+        item['total'] = float(item['total'])
+
+
+        # Convert data to JSON for JavaScript
+    category_totals_json = json.dumps(category_totals)
+
+    # Get category names dictionary
+    category_names = dict(Transaction.TRANSACTION_CATEGORIES)
+    date_range = Transaction.objects.filter(bank_account__in=accounts).aggregate(
+        min_date=Min('date'),
+        max_date=Max('date')
+    )
+
+    if date_range['min_date'] and date_range['max_date']:
+        # Create a list of all months between min and max date
+        current_date = date_range['min_date'].replace(day=1)
+        end_date = date_range['max_date'].replace(day=1)
+        all_months = []
+
+        while current_date <= end_date:
+            all_months.append(current_date)
+            current_date += relativedelta(months=1)
+
+        # Get monthly totals with proper aggregation
+        monthly_spending = {}
+        for month in all_months:
+            month_total = Transaction.objects.filter(
+                bank_account__in=accounts,
+                date__year=month.year,
+                date__month=month.month
+            ).aggregate(total=Sum('amount'))['total'] or 0
+            monthly_spending[month] = float(month_total)
+
+        # Convert to list for JSON
+        monthly_totals_json = json.dumps([{
+            'month': month.strftime('%Y-%m-%d'),
+            'total': monthly_spending[month]
+        } for month in all_months])
+
+        # Debug print
+        print("Monthly spending data:", monthly_spending)
+    else:
+        monthly_totals_json = '[]'
 
     return render(request, 'transaction_list.html', {
         'transactions': transactions,
@@ -116,4 +194,7 @@ def transaction_list(request):
         'purchase_form': purchase_form,
         'categories': categories,
         'selected_category': selected_category,
+        'category_totals_json': category_totals_json,  # Changed this
+        'category_names': category_names,
+        'monthly_totals_json': monthly_totals_json,  # Added this
     })

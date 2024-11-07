@@ -8,9 +8,14 @@
     <!-- Bootswatch CSS -->
     <link rel="stylesheet" href="https://bootswatch.com/5/zephyr/bootstrap.min.css">
     <!-- Bootstrap JS and dependencies (jQuery and Popper.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+
 
     <script>
         function toggleFilters() {
@@ -137,6 +142,25 @@
             </div>
         </div>
 
+        <!-- Monthly Spending Line Chart -->
+    <div class="row mt-4">
+        <!-- Monthly Spending Chart -->
+        <div class="col-12">  <!-- Changed to full width -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white d-flex justify-content-between">
+                    <h5 class="mb-0">Monthly Spending Trends</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+    </div>
+
         <!-- Deposit Modal -->
         <div class="modal fade" id="depositModal" tabindex="-1" role="dialog" aria-labelledby="depositModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -214,5 +238,75 @@
 
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+
+    const monthlyData = JSON.parse('{{ monthly_totals_json|safe }}');
+
+    // Format the dates and extract values
+    const monthlyLabels = monthlyData.map(item => {
+        const date = new Date(item.month);
+        date.setDate(date.getDate() + 1);
+        return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    });
+    const monthlyValues = monthlyData.map(item => item.total);
+
+    // Create Monthly Chart
+    if (document.getElementById('monthlyChart')) {
+        new Chart(document.getElementById('monthlyChart'), {
+            type: 'line',
+            data: {
+                labels: monthlyLabels,
+                datasets: [{
+                    label: 'Monthly Spending',
+                    data: monthlyValues,
+                    fill: false,
+                    borderColor: '#36A2EB',
+                    tension: 0.1,
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#36A2EB'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2.5,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                return `$${value.toFixed(2)}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: true
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toFixed(2);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    </script>
 </body>
 </html>

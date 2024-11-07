@@ -5,6 +5,8 @@ from transactions.models import Transaction  # Import the Transaction model
 from transactions.forms import DepositForm, WithdrawForm, PurchaseForm  # Import the forms
 from recurring.utils import generate_recurring_transactions
 from recurring.models import RecurringTransaction
+from django.db.models import Sum
+import json
 # Create your views here.
 
 def dashboard(request):
@@ -50,12 +52,27 @@ def view_account(request, account_no):
     # get the specific account for the user
     account = get_object_or_404(BankAccount, account_no=account_no, user=request.user)
 
-    # fetch the transactions to this account
+    # fetch the transactions for this account
     transactions = Transaction.objects.filter(bank_account=account).order_by('-date')
+
+    # Calculate category totals for this account
+    category_totals = (Transaction.objects
+                       .filter(bank_account=account)
+                       .values('category')
+                       .annotate(total=Sum('amount'))
+                       .order_by('-total'))
+
+    # Convert Decimal to float for JSON serialization
+    category_totals_json = json.dumps([{
+        'category': item['category'],
+        'total': float(item['total'])
+    } for item in category_totals])
 
     return render(request, 'view_account.html', {
         'account': account,
         'transactions': transactions,
+        'category_totals_json': category_totals_json,
+        'categories': Transaction.TRANSACTION_CATEGORIES,
     })
     
 

@@ -17,6 +17,7 @@
             transform: rotate(90deg);
         }
    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -58,7 +59,14 @@
                 </div>
             </div>
         </div>
-
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Spending by Category</h5>
+            </div>
+            <div class="card-body" style="height: 400px;">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
         <div class="card shadow-sm mt-4">
             <div class="card-header bg-info text-white d-flex justify-content-between">
                 <h5 class="mb-0">Transactions for this Account</h5>
@@ -126,6 +134,53 @@
             }
 
         })
+    </script>
+    <script>
+    // Category Chart
+        const categoryData = JSON.parse('{{ category_totals_json|safe }}');
+        const categoryLabels = categoryData.map(item => {
+            const categoryMap = {
+                {% for code, name in categories %}
+                '{{ code }}': '{{ name }}',
+                {% endfor %}
+            };
+            return categoryMap[item.category] || item.category;
+        });
+        const categoryValues = categoryData.map(item => item.total);
+
+        // Create the chart
+        if (document.getElementById('categoryChart')) {
+            new Chart(document.getElementById('categoryChart'), {
+                type: 'pie',
+                data: {
+                    labels: categoryLabels,
+                    datasets: [{
+                        data: categoryValues,
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                            '#FF9F40', '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    return `$${value.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
     </script>
 
 </body>

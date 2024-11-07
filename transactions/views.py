@@ -112,43 +112,6 @@ def transaction_list(request):
     withdraw_form = WithdrawForm(user=request.user)
     purchase_form = PurchaseForm(user=request.user)
 
-    ## Start of visualizations
-    # unique categories
-    categories = Transaction.TRANSACTION_CATEGORIES
-
-    category_totals = list(Transaction.objects
-                           .filter(bank_account__in=accounts)
-                           .values('category')
-                           .annotate(total=Sum('amount'))
-                           .order_by('-total'))
-
-    # Convert Decimal to float for JSON serialization
-    for item in category_totals:
-        item['total'] = float(item['total'])
-
-    # Monthly totals
-    monthly_totals = list(Transaction.objects
-                          .filter(bank_account__in=accounts)
-                          .annotate(month=TruncMonth('date'))
-                          .values('month')
-                          .annotate(total=Sum('amount'))
-                          .order_by('month'))
-
-    monthly_totals_json = json.dumps([{
-        'month': item['month'].strftime('%Y-%m-%d'),  # Format date as string
-        'total': float(item['total'])
-    } for item in monthly_totals])
-
-    # Convert Decimal to float
-    for item in monthly_totals:
-        item['total'] = float(item['total'])
-
-
-        # Convert data to JSON for JavaScript
-    category_totals_json = json.dumps(category_totals)
-
-    # Get category names dictionary
-    category_names = dict(Transaction.TRANSACTION_CATEGORIES)
     date_range = Transaction.objects.filter(bank_account__in=accounts).aggregate(
         min_date=Min('date'),
         max_date=Max('date')
@@ -192,9 +155,6 @@ def transaction_list(request):
         'deposit_form': deposit_form,
         'withdraw_form': withdraw_form,
         'purchase_form': purchase_form,
-        'categories': categories,
         'selected_category': selected_category,
-        'category_totals_json': category_totals_json,  # Changed this
-        'category_names': category_names,
         'monthly_totals_json': monthly_totals_json,  # Added this
     })

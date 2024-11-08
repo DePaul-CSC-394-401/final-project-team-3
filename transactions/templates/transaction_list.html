@@ -143,19 +143,33 @@
         </div>
 
         <!-- Monthly Spending Line Chart -->
-    <div class="row mt-4">
-        <!-- Monthly Spending Chart -->
-        <div class="col-12">  <!-- Changed to full width -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-info text-white d-flex justify-content-between">
-                    <h5 class="mb-0">Monthly Spending Trends</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="monthlyChart"></canvas>
+        <div class="row mt-4">
+            <!-- Monthly Spending Chart -->
+            <div class="col-12">  <!-- Changed to full width -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white d-flex justify-content-between">
+                        <h5 class="mb-0">Monthly Spending Trends</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+
+        <!-- Pie Chart for Spending by Category -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Spending by Category</h5>
+            </div>
+            <div class="card-body" style="height: 400px;">
+                {% if category_totals_json != '[]' %}
+                    <canvas id="categoryChart"></canvas>
+                {% else %}
+                    <p class="text-center text-muted">No transaction data available to display.</p>
+                {% endif %}
+            </div>
+        </div>
 
     </div>
 
@@ -307,6 +321,72 @@
             }
         });
     }
+    </script>
+    <script>
+        // Define 7 distinct colors for the pie chart
+            const pieColors = [
+                '#FF6384', // Red
+                '#36A2EB', // Blue
+                '#FFCE56', // Yellow
+                '#4BC0C0', // Teal
+                '#C9CBCF',  // Grey
+                '#9966FF', // Purple
+                '#FF9F40', // Orange
+                
+            ];
+    
+        // Category Chart
+            {% if category_totals_json != '[]' %}
+                const categoryData = JSON.parse('{{ category_totals_json|safe }}');
+                const categoryLabels = categoryData.map(item => {
+                    const categoryMap = {
+                        {% for code, name in categories %}
+                        '{{ code }}': '{{ name }}',
+                        {% endfor %}
+                    };
+                    return categoryMap[item.category] || item.category;
+                });
+                const categoryValues = categoryData.map(item => item.total);
+    
+                // Assign colors to categories
+                const backgroundColors = pieColors.slice(0, categoryLabels.length);
+                // If there are more categories than colors, repeat colors or generate new ones
+                while (backgroundColors.length < categoryLabels.length) {
+                    backgroundColors.push('#' + Math.floor(Math.random()*16777215).toString(16));
+                }
+    
+                // Create the pie chart
+                if (document.getElementById('categoryChart')) {
+                    new Chart(document.getElementById('categoryChart'), {
+                        type: 'pie',
+                        data: {
+                            labels: categoryLabels,
+                            datasets: [{
+                                data: categoryValues,
+                                backgroundColor: backgroundColors,
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const value = context.raw;
+                                            return `$${value.toFixed(2)}`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            {% endif %}
     </script>
 </body>
 </html>

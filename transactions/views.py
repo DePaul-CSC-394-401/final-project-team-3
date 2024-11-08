@@ -6,7 +6,7 @@ from decimal import Decimal
 from django.db.models import Sum
 from django.db.models.functions import TruncMonth
 import json
-from django.db.models import Min, Max
+from django.db.models import Count, Sum, Min, Max
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta  # You might need to install python-dateutil
 
@@ -148,7 +148,27 @@ def transaction_list(request):
     else:
         monthly_totals_json = '[]'
 
-    return render(request, 'transaction_list.html', {
+
+   # --- Add Aggregation by Category for All Transactions ---
+    category_aggregation = transactions.values('category').annotate(
+        total=Sum('amount')
+    ).order_by('category')
+
+    # Extract data for the pie chart
+    categories = [item['category'] for item in category_aggregation]
+    category_totals = [float(item['total']) for item in category_aggregation]
+
+    # Serialize data to JSON
+    category_totals_json = json.dumps([
+        {'category': category, 'total': total}
+        for category, total in zip(categories, category_totals)
+    ])
+
+    # Get all category choices from the Transaction model
+    # Assuming 'category' is a CharField with choices
+    category_choices = Transaction.TRANSACTION_CATEGORIES 
+
+    context = {
         'transactions': transactions,
         'accounts': accounts,
         'sort_by': sort_by,
@@ -157,4 +177,8 @@ def transaction_list(request):
         'purchase_form': purchase_form,
         'selected_category': selected_category,
         'monthly_totals_json': monthly_totals_json,  # Added this
-    })
+        'categories': category_choices,               
+        'category_totals_json': category_totals_json,
+    }
+
+    return render(request, 'transaction_list.html', context)

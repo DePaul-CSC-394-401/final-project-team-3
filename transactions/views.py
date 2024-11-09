@@ -80,38 +80,39 @@ def add_deposit(request):
 
 
 def transaction_list(request):
-    # get user's bank accounts
+    # Get user's bank accounts
     accounts = BankAccount.objects.filter(user=request.user)
 
-    # fetch all transactions for the user's accounts by default
+    # Fetch all transactions for the user's accounts by default
     transactions = Transaction.objects.filter(bank_account__in=accounts)
 
-    # get the sort_by query parameter
+    # Get the sort_by query parameter
     sort_by = request.GET.get('sort_by', 'date')
 
-    # filter by selected account
+    # Filter by selected account
     selected_account = request.GET.get('account')
     if sort_by == 'account' and selected_account:
         transactions = transactions.filter(bank_account__id=selected_account)
 
-    # filter by selected date
+    # Filter by selected date
     selected_date = request.GET.get('date')
     if sort_by == 'date' and selected_date:
         transactions = transactions.filter(date=selected_date)
 
-    # filter by category
+    # Filter by category
     selected_category = request.GET.get('category')
     if selected_category:
         transactions = transactions.filter(category=selected_category)
 
-    # default sorting
+    # Default sorting
     transactions = transactions.order_by('-date')
 
-    # forms
+    # Forms
     deposit_form = DepositForm(user=request.user)
     withdraw_form = WithdrawForm(user=request.user)
     purchase_form = PurchaseForm(user=request.user)
 
+    # Get date range for charts
     date_range = Transaction.objects.filter(bank_account__in=accounts).aggregate(
         min_date=Min('date'),
         max_date=Max('date')
@@ -127,46 +128,110 @@ def transaction_list(request):
             all_months.append(current_date)
             current_date += relativedelta(months=1)
 
-        # Get monthly totals with proper aggregation
-        monthly_spending = {}
-        for month in all_months:
-            month_total = Transaction.objects.filter(
-                bank_account__in=accounts,
-                date__year=month.year,
-                date__month=month.month
-            ).aggregate(total=Sum('amount'))['total'] or 0
-            monthly_spending[month] = float(month_total)
+        # Create data for each category
+        category_monthly_data = {}
+        for category_code, category_name in Transaction.TRANSACTION_CATEGORIES:
+            monthly_spending = {}
+            for month in all_months:
+                month_total = Transaction.objects.filter(
+                    bank_account__in=accounts,
+                    category=category_code,
+                    date__year=month.year,
+                    date__month=month.month
+                ).aggregate(total=Sum('amount'))['total'] or 0
+                monthly_spending[month] = float(month_total)
 
-        # Convert to list for JSON
-        monthly_totals_json = json.dumps([{
-            'month': month.strftime('%Y-%m-%d'),
-            'total': monthly_spending[month]
-        } for month in all_months])
+            category_monthly_data[category_code] = {
+                'name': category_name,
+                'data': [monthly_spending[month] for month in all_months]
+            }
 
-        # Debug print
-        print("Monthly spending data:", monthly_spending)
+        # Prepare the JSON data for the line chart
+        chart_data = {
+            'labels': [month.strftime('%Y-%m-%d') for month in all_months],
+            'datasets': []
+        }
+
+        # Define colors (matching pie chart colors)
+        colors = [
+            '#FF6384',
+            '#36A2EB',
+            '#FFCE56',
+            '#4BC0C0',
+            '#C9CBCF',
+            '#9966FF',
+            '#FF9F40',
+            '#2ECC71',
+            '#E74C3C',
+            '#8E44AD',
+            '#16A085',
+            '#D35400',
+            '#27AE60',
+            '#3498DB',
+        ]
+
+
+        # Create datasets for each category
+        for i, (category_code, data) in enumerate(category_monthly_data.items()):
+            category_color = colors[i] if i < len(colors) else colors[i % len(colors)]
+            chart_data['datasets'].append({
+                'label': data['name'],
+                'data': data['data'],
+                'borderColor': category_color,
+                'backgroundColor': category_color,
+                'hidden': True,  # Start with all lines hidden except total
+                'fill': False,
+                'order': 1,
+                'pointRadius': 0,  # Keep points for category lines
+                'pointHoverRadius': 6
+            })
+
+        # Add total spending line
+        total_spending = [sum(category_monthly_data[cat]['data'][i]
+                              for cat in category_monthly_data.keys())
+                          for i in range(len(all_months))]
+
+        chart_data['datasets'].append({
+            'label': 'Total',
+            'data': total_spending,
+            'borderColor': 'rgba(0, 0, 0, 0.7)',  # Semi-transparent black border
+            'backgroundColor': 'rgba(0, 0, 0, 0.2)',  # Very light black fill
+            'fill': True,  # Enable filling
+            'hidden': False,  # Total line visible by default
+            'order': 2,  # Higher order means it will be drawn first (bottom layer)
+            'pointRadius': 0,  # This will hide the points for the total line
+            'pointHoverRadius': 0
+        })
+
+
+        monthly_totals_json = json.dumps(chart_data)
     else:
         monthly_totals_json = '[]'
 
+    # Category aggregation for pie chart
+    category_totals_dict = {code: 0 for code, _ in Transaction.TRANSACTION_CATEGORIES}
 
-   # --- Add Aggregation by Category for All Transactions ---
+    # Get actual totals from transactions
     category_aggregation = transactions.values('category').annotate(
         total=Sum('amount')
-    ).order_by('category')
+    )
 
-    # Extract data for the pie chart
-    categories = [item['category'] for item in category_aggregation]
-    category_totals = [float(item['total']) for item in category_aggregation]
+    # Update dictionary with actual values
+    for item in category_aggregation:
+        if item['category'] in category_totals_dict:
+            category_totals_dict[item['category']] = float(item['total'])
 
-    # Serialize data to JSON
+    # Prepare data for JSON in the same order as TRANSACTION_CATEGORIES
     category_totals_json = json.dumps([
-        {'category': category, 'total': total}
-        for category, total in zip(categories, category_totals)
+        {
+            'category': category_code,
+            'total': category_totals_dict[category_code]
+        }
+        for category_code, _ in Transaction.TRANSACTION_CATEGORIES
     ])
 
     # Get all category choices from the Transaction model
-    # Assuming 'category' is a CharField with choices
-    category_choices = Transaction.TRANSACTION_CATEGORIES 
+    category_choices = Transaction.TRANSACTION_CATEGORIES
 
     context = {
         'transactions': transactions,
@@ -175,9 +240,9 @@ def transaction_list(request):
         'deposit_form': deposit_form,
         'withdraw_form': withdraw_form,
         'purchase_form': purchase_form,
+        'categories': category_choices,
         'selected_category': selected_category,
-        'monthly_totals_json': monthly_totals_json,  # Added this
-        'categories': category_choices,               
+        'monthly_totals_json': monthly_totals_json,
         'category_totals_json': category_totals_json,
     }
 

@@ -148,7 +148,7 @@
             <div class="col-12">  <!-- Changed to full width -->
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-info text-white d-flex justify-content-between">
-                        <h5 class="mb-0">Monthly Spending Trends</h5>
+                        <h5 class="mb-0">Spending Trends</h5>
                     </div>
                     <div class="card-body">
                         <canvas id="monthlyChart"></canvas>
@@ -253,48 +253,74 @@
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+    // Define colors and create category-to-color mapping
+    const pieColors = [
+        '#FF6384', // Red
+        '#36A2EB', // Blue
+        '#FFCE56', // Yellow
+        '#4BC0C0', // Teal
+        '#C9CBCF', // Grey
+        '#9966FF', // Purple
+        '#FF9F40', // Orange
+        '#2ECC71', // Green
+        '#E74C3C', // Crimson
+        '#8E44AD', // Purple
+        '#16A085', // Turquoise
+        '#D35400', // Pumpkin
+        '#27AE60', // Emerald
+        '#3498DB', // Sky Blue
+    ];
 
-    const monthlyData = JSON.parse('{{ monthly_totals_json|safe }}');
+    // Create a mapping of categories to colors
+    const categoryColorMap = {
+        {% for code, name in categories %}
+            '{{ code }}': pieColors[{{ forloop.counter0 }} % pieColors.length],
+        {% endfor %}
+    };
 
-    // Format the dates and extract values
-    const monthlyLabels = monthlyData.map(item => {
-        const date = new Date(item.month);
-        date.setDate(date.getDate() + 1);
-        return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-    });
-    const monthlyValues = monthlyData.map(item => item.total);
-
-    // Create Monthly Chart
+    // Monthly Line Chart
     if (document.getElementById('monthlyChart')) {
+        const chartData = JSON.parse('{{ monthly_totals_json|safe }}');
+
+        const formattedLabels = chartData.labels.map(date => {
+            const d = new Date(date);
+            d.setDate(d.getDate() + 1);
+            return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        });
+
+        // Remove the datasets mapping and use the datasets directly
         new Chart(document.getElementById('monthlyChart'), {
             type: 'line',
             data: {
-                labels: monthlyLabels,
-                datasets: [{
-                    label: 'Monthly Spending',
-                    data: monthlyValues,
-                    fill: false,
-                    borderColor: '#36A2EB',
-                    tension: 0.1,
-                    borderWidth: 2,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#36A2EB'
-                }]
+                labels: formattedLabels,
+                datasets: chartData.datasets  // Use datasets directly without mapping
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
                 aspectRatio: 2.5,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
                 plugins: {
                     legend: {
                         display: true,
-                        position: 'top'
+                        position: 'top',
+                        onClick: function(e, legendItem, legend) {
+                            const index = legendItem.datasetIndex;
+                            const ci = legend.chart;
+                            const meta = ci.getDatasetMeta(index);
+                            meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
+                            ci.update();
+                        }
                     },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                const value = context.raw;
-                                return `$${value.toFixed(2)}`;
+                                const label = context.dataset.label || '';
+                                const value = context.parsed.y;
+                                return `${label}: $${value.toFixed(2)}`;
                             }
                         }
                     }
@@ -302,7 +328,9 @@
                 scales: {
                     x: {
                         grid: {
-                            display: true
+                            display: true,
+                            drawOnChartArea: true,
+                            color: 'rgba(0, 0, 0, 0.1)'
                         },
                         ticks: {
                             maxRotation: 45,
@@ -311,6 +339,10 @@
                     },
                     y: {
                         beginAtZero: true,
+                        grid: {
+                            drawOnChartArea: true,
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
                         ticks: {
                             callback: function(value) {
                                 return '$' + value.toFixed(2);
@@ -321,72 +353,52 @@
             }
         });
     }
-    </script>
-    <script>
-        // Define 7 distinct colors for the pie chart
-            const pieColors = [
-                '#FF6384', // Red
-                '#36A2EB', // Blue
-                '#FFCE56', // Yellow
-                '#4BC0C0', // Teal
-                '#C9CBCF',  // Grey
-                '#9966FF', // Purple
-                '#FF9F40', // Orange
-                
-            ];
-    
-        // Category Chart
-            {% if category_totals_json != '[]' %}
-                const categoryData = JSON.parse('{{ category_totals_json|safe }}');
-                const categoryLabels = categoryData.map(item => {
-                    const categoryMap = {
-                        {% for code, name in categories %}
-                        '{{ code }}': '{{ name }}',
-                        {% endfor %}
-                    };
-                    return categoryMap[item.category] || item.category;
-                });
-                const categoryValues = categoryData.map(item => item.total);
-    
-                // Assign colors to categories
-                const backgroundColors = pieColors.slice(0, categoryLabels.length);
-                // If there are more categories than colors, repeat colors or generate new ones
-                while (backgroundColors.length < categoryLabels.length) {
-                    backgroundColors.push('#' + Math.floor(Math.random()*16777215).toString(16));
-                }
-    
-                // Create the pie chart
-                if (document.getElementById('categoryChart')) {
-                    new Chart(document.getElementById('categoryChart'), {
-                        type: 'pie',
-                        data: {
-                            labels: categoryLabels,
-                            datasets: [{
-                                data: categoryValues,
-                                backgroundColor: backgroundColors,
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    position: 'right',
-                                },
-                                tooltip: {
-                                    callbacks: {
-                                        label: function(context) {
-                                            const value = context.raw;
-                                            return `$${value.toFixed(2)}`;
-                                        }
-                                    }
-                                }
+
+    // Category Pie Chart
+    if (document.getElementById('categoryChart')) {
+        const categoryData = JSON.parse('{{ category_totals_json|safe }}');
+        const categoryLabels = categoryData.map(item => {
+            const categoryMap = {
+                {% for code, name in categories %}
+                '{{ code }}': '{{ name }}',
+                {% endfor %}
+            };
+            return categoryMap[item.category] || item.category;
+        });
+        const categoryValues = categoryData.map(item => item.total);
+
+        // Use the same color mapping for pie chart
+        const backgroundColors = categoryData.map(item => categoryColorMap[item.category]);
+
+        new Chart(document.getElementById('categoryChart'), {
+            type: 'pie',
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    data: categoryValues,
+                    backgroundColor: backgroundColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                return `$${value.toFixed(2)}`;
                             }
                         }
-                    });
+                    }
                 }
-            {% endif %}
-    </script>
+            }
+        });
+    }
+</script>
 </body>
 </html>

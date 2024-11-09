@@ -1,4 +1,5 @@
 {% load crispy_forms_tags %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,11 +8,7 @@
     <title>Banking Dashboard</title>
     <!-- Bootswatch CSS -->
    <link rel="stylesheet" href="https://bootswatch.com/5/zephyr/bootstrap.min.css">
-   <style>
-    .padded-body {
-        padding-top: 56px;
-    }
-   </style>
+   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
    <!-- Bootstrap JS and dependencies (jQuery and Popper.js) -->
    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
@@ -19,11 +16,11 @@
 </head>
 
 
-<body class="padded-body">
+<body>
     <!-- NAVBAR -->
     <nav class="navbar bg-light navbar-expand-lg fixed-top">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">DeBank</a>
+            <a class="navbar-brand" href="#"><img src="{% static 'images/logo.png' %}" alt="DeBank Logo" style="width: 75px; height: 30px;"></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar" aria-controls="collapsibleNavbar" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -54,27 +51,27 @@
 
             <div class="d-flex flex-wrap justify-content-center mt-4">
                 <!-- Add Deposit Button -->
-                <button type="button" class="btn btn-primary mx-2 my-1" data-toggle="modal" data-target="#depositModal">
+                <button type="button" class="btn btn-primary btn-hover-up mx-2 my-1" data-toggle="modal" data-target="#depositModal">
                     Add Deposit
                 </button>
         
                 <!-- Add Withdraw Button -->
-                <button type="button" class="btn btn-primary mx-2 my-1" data-toggle="modal" data-target="#withdrawModal">
+                <button type="button" class="btn btn-primary btn-hover-up mx-2 my-1" data-toggle="modal" data-target="#withdrawModal">
                     Add Withdraw
                 </button>
         
                 <!-- Add Purchase Button -->
-                <button type="button" class="btn btn-primary mx-2 my-1" data-toggle="modal" data-target="#purchaseModal">
+                <button type="button" class="btn btn-primary btn-hover-up mx-2 my-1" data-toggle="modal" data-target="#purchaseModal">
                     Add Purchase
                 </button>
         
                 <!-- Recurring Transactions Link -->
-                <a href="{% url 'recurring_transaction_list' %}" class="btn btn-primary mx-2 my-1">
+                <a href="{% url 'recurring_transaction_list' %}" class="btn btn-primary btn-hover-up mx-2 my-1">
                     Recurring Transactions
                 </a>
         
                 <!-- Manage Budgets Link -->
-                <a href="{% url 'budget:budget_list' %}" class="btn btn-primary mx-2 my-1">
+                <a href="{% url 'budget:budget_list' %}" class="btn btn-primary btn-hover-up mx-2 my-1">
                     Manage Budgets
                 </a>
             </div>
@@ -127,7 +124,7 @@
             <div class="card shadow-sm mt-4">
                 <div class="card-header bg-info text-white d-flex justify-content-between">
                     <h5 class="mb-0">Recent Transactions</h5>
-                    <a href="{% url 'transaction_list' %}" class="btn btn-secondary btn-sm">View All</a>
+                    <a href="{% url 'transaction_list' %}" class="btn btn-secondary btn-hover-up btn-sm">View All</a>
                 </div>
                 <div class="card-body">
                     <table class="table table-striped">

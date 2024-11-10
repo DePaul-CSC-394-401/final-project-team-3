@@ -6,3 +6,5 @@ tzdata==2024.1
 
 django-crispy-forms
 crispy-bootstrap5
+
+python-dateutil

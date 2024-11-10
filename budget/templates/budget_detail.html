@@ -118,7 +118,7 @@
               <h5 class="mb-0">Spending Overview</h5>
           </div>
           <div class="card-body text-center">
-              <canvas id="spendingChart" width="400" height="400"></canvas>
+              <canvas id="spendingChart" width="200" height="200"></canvas>
           </div>
       </div>
 
@@ -151,41 +151,51 @@
         const spendingData = {{ spending_data|safe }};
         const total = spendingData.spent + spendingData.remaining;
         
+        // Create an array of colors for different categories
+        const categoryColors = {
+            'Bills & Utilities': '#FF6B6B',
+            'Food & Dining': '#4ECDC4',
+            'Shopping': '#45B7D1',
+            'Transportation': '#96CEB4',
+            'Entertainment': '#FFEEAD',
+            'Healthcare': '#D4A5A5',
+            'Other': '#FF9999'
+        };
+    
+        // Prepare datasets for categories
+        const categoryDatasets = spendingData.categories.map(cat => ({
+            label: cat.category,
+            data: [cat.amount],
+            backgroundColor: categoryColors[cat.category] || '#dc3545',
+            borderColor: categoryColors[cat.category] || '#dc3545',
+            borderWidth: 1
+        }));
+    
+        // Add remaining budget dataset
+        categoryDatasets.push({
+            label: 'Remaining',
+            data: [spendingData.remaining],
+            backgroundColor: '#28a745',
+            borderColor: '#28a745',
+            borderWidth: 1
+        });
+    
         const ctx = document.getElementById('spendingChart').getContext('2d');
         new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: ['Budget Progress'],
-                datasets: [
-                    {
-                        label: 'Spent',
-                        data: [spendingData.spent],
-                        backgroundColor: '#dc3545', // Red for spent
-                        borderColor: '#dc3545',
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'Remaining',
-                        data: [spendingData.remaining],
-                        backgroundColor: '#28a745', // Green for remaining
-                        borderColor: '#28a745',
-                        borderWidth: 1
-                    }
-                ]
+                datasets: categoryDatasets
             },
             options: {
-                indexAxis: 'y', // Makes the bar horizontal
+                indexAxis: 'y',
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
                     x: {
                         stacked: true,
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return '$' + value;
-                            }
-                        }
+                        max: total,
+                        min: 0
                     },
                     y: {
                         stacked: true
@@ -193,13 +203,12 @@
                 },
                 plugins: {
                     legend: {
-                        position: 'top',
-                        align: 'start'
+                        position: 'right'
                     },
                     tooltip: {
                         callbacks: {
-                            label: function(tooltipItem) {
-                                return tooltipItem.dataset.label + ': $' + tooltipItem.raw;
+                            label: function(context) {
+                                return `${context.dataset.label}: $${context.raw.toFixed(2)}`;
                             }
                         }
                     }
@@ -207,7 +216,7 @@
             }
         });
     });
-  </script>
+</script>
 </body>
 </html>
 

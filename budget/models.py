@@ -1,3 +1,4 @@
+from django.db.models import Sum
 from django.db import models
 from django.contrib.auth.models import User
 from bank.models import BankAccount
@@ -5,6 +6,7 @@ from transactions.models import Transaction
 from decimal import Decimal
 from django.utils import timezone
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 
 class Budget(models.Model):
@@ -98,35 +100,30 @@ class Budget(models.Model):
 
     def update_amount_spent(self):
         """Update the current amount spent for this budget period"""
-        # Get the start of the current period
+        # Set start and end of the current month
         now = timezone.now()
-        if self.period_type == 'monthly':
-            period_start = datetime(now.year, now.month, 1).date()
+        month_start = now.replace(day=1).date()
+        month_end = (month_start + relativedelta(months=1)) - relativedelta(days=1)
 
-        #added this
-        transactions_start_date = max(self.start_date, period_start)
-
-        # Query relevant transactions
+        # Filter transactions within the month, based on budget type
         if self.budget_type == 'account':
             transactions = Transaction.objects.filter(
                 bank_account=self.account,
-                #date__gte=period_start,
-                date__gte=transactions_start_date,
-                date__lte=now,
+                date__gte=month_start,
+                date__lte=month_end,
                 transaction_type='purchase'
             )
-        else:  # category-based
+        else:  # category-based budget
             transactions = Transaction.objects.filter(
                 bank_account__user=self.user,
                 category=self.category,
-                #date__gte=period_start,
-                date__gte=transactions_start_date,
-                date__lte=now,
+                date__gte=month_start,
+                date__lte=month_end,
                 transaction_type='purchase'
             )
 
-        # Calculate total spent
-        total_spent = sum(t.amount for t in transactions)
+        # Calculate total spent for the month
+        total_spent = transactions.aggregate(total=Sum('amount'))['total'] or 0
         self.current_amount_spent = total_spent
         self.save()
 

@@ -7,7 +7,13 @@ from recurring.utils import generate_recurring_transactions
 from recurring.models import RecurringTransaction
 from django.db.models import Sum
 import json
+import requests
+from django.conf import settings
+
 # Create your views here.
+
+def homepage(request):
+    return render(request, 'homepage.html')
 
 def dashboard(request):
     # get the users bank accounts

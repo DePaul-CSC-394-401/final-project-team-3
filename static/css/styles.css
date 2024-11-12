@@ -15,12 +15,12 @@ body {
 .area {
     width: 100%;
     height: 100vh;
-    position: fixed; /* Fixed to ensure it stays in place */
+    position: fixed; /* fixed so it stays in place */
     top: 0;
     left: 0;
     overflow: hidden;
     background: linear-gradient(to left, #ffffff, #fffefe);
-    z-index: -1; /* Positioned behind the main content */
+    z-index: -1; /* positioned behind the main stuff */
 }
 
 .circles {
@@ -43,7 +43,7 @@ body {
     bottom: -150px;
 }
 
-/* Define styles for each circle */
+/* define styles for each circle */
 .circles li:nth-child(1){
     left: 25%;
     width: 80px;
@@ -141,6 +141,6 @@ body {
 }
 
 .btn-hover-up:hover {
-    transform: translateY(-5px); /* Moves the button up by 5px */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Adds a subtle shadow */
+    transform: translateY(-5px); /* moves the button up by 5px */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* adds a shadow */
 }

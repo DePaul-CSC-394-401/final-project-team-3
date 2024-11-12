@@ -5,7 +5,7 @@ from bank.models import BankAccount
 from transactions.models import Transaction
 from decimal import Decimal
 from django.utils import timezone
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
 
@@ -88,6 +88,34 @@ class Budget(models.Model):
             ),
         ]
 
+    def get_current_period(self):
+        today = date.today()
+        period_start = self.start_date
+        period_end = None
+
+        if self.period_type == 'daily':
+            period_start = today
+            period_end = today
+        elif self.period_type == 'weekly':
+            # Start of the week (Monday)
+            period_start = today - timedelta(days=today.weekday())
+            period_end = period_start + timedelta(days=6)
+        elif self.period_type == 'monthly':
+            # Start and end of the current month
+            period_start = today.replace(day=1)
+            next_month = period_start + relativedelta(months=1)
+            period_end = next_month - timedelta(days=1)
+        elif self.period_type == 'yearly':
+            # Start and end of the current year
+            period_start = today.replace(month=1, day=1)
+            period_end = today.replace(month=12, day=31)
+
+        # Ensure the period starts no earlier than the budget's start date
+        if period_start < self.start_date:
+            period_start = self.start_date
+
+        return period_start, period_end
+
     def calculate_budget_limit(self):
         """Calculate the total budget limit based on allocation type"""
         if self.allocation_type == 'fixed':
@@ -99,30 +127,23 @@ class Budget(models.Model):
         return Decimal('0.00')
 
     def update_amount_spent(self):
-        """Update the current amount spent for this budget period"""
-        # Set start and end of the current month
-        now = timezone.now()
-        month_start = now.replace(day=1).date()
-        month_end = (month_start + relativedelta(months=1)) - relativedelta(days=1)
+        period_start, period_end = self.get_current_period()
 
-        # Filter transactions within the month, based on budget type
+        # Base query for transactions
+        transactions = Transaction.objects.filter(
+            bank_account__user=self.user,
+            date__gte=period_start,
+            date__lte=period_end,
+            transaction_type='purchase'
+        )
+
+        # Filter transactions based on budget type
         if self.budget_type == 'account':
-            transactions = Transaction.objects.filter(
-                bank_account=self.account,
-                date__gte=month_start,
-                date__lte=month_end,
-                transaction_type='purchase'
-            )
-        else:  # category-based budget
-            transactions = Transaction.objects.filter(
-                bank_account__user=self.user,
-                category=self.category,
-                date__gte=month_start,
-                date__lte=month_end,
-                transaction_type='purchase'
-            )
+            transactions = transactions.filter(bank_account=self.account)
+        elif self.budget_type == 'category':
+            transactions = transactions.filter(category=self.category)
 
-        # Calculate total spent for the month
+        # Calculate total spent for the period
         total_spent = transactions.aggregate(total=Sum('amount'))['total'] or 0
         self.current_amount_spent = total_spent
         self.save()

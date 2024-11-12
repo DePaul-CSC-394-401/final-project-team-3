@@ -42,58 +42,55 @@ def budget_list(request):
 
 @login_required
 def budget_detail(request, pk):
-  # Display detailed view of a specific budget
-  budget = get_object_or_404(Budget, pk=pk, user=request.user)
-  budget.update_amount_spent()
-  
+    # Get the budget object
+    budget = get_object_or_404(Budget, pk=pk, user=request.user)
+    budget.update_amount_spent()
 
-  base_query = Transaction.objects
-  
+    # Get the current budget period
+    period_start, period_end = budget.get_current_period()
 
-  if budget.budget_type == 'account':
-    base_query = base_query.filter(bank_account=budget.account)
-  elif budget.budget_type == 'category':
-     base_query = base_query.filter(category=budget.category)
-  
-  # Set the range for budget for the first day of the current month
-  # Visuals should pull the values for the monthly shit
-  today = datetime.now()
-  month_start = today.replace(day=1)
-  month_end = (month_start + relativedelta(months=1)) - relativedelta(days=1)
+    # Base query for transactions
+    base_query = Transaction.objects.filter(
+        bank_account__user=request.user,
+        date__gte=period_start,
+        date__lte=period_end
+    )
 
-  # Get spending by category
-  category_spending = (
+    # Filter transactions based on budget type
+    if budget.budget_type == 'account':
+        base_query = base_query.filter(bank_account=budget.account)
+    elif budget.budget_type == 'category':
+        base_query = base_query.filter(category=budget.category)
+
+    # Get spending by category
+    category_spending = (
         base_query
-        .filter(
-            date__gte=month_start,
-            date__lte=month_end
-        )
         .values('category')
         .annotate(amount=Sum('amount'))
         .order_by('category')
     )
-  
-  # Getting the total DATTTAAA
-  category_data = []
-  for item in category_spending:
-      if item['category'] and item['amount']:
-         category_data.append({
-            'category': item['category'],
-            'amount': float(item['amount'])
-        })
 
-  context = {
-      'budget': budget,
-      'limit': budget.calculate_budget_limit(),
-      'remaining': budget.get_remaining_budget(),
-      'percentage_used': budget.get_percentage_used(),
-      'spending_data': {
-          'spent': float(budget.current_amount_spent),
-          'remaining': float(budget.get_remaining_budget()),
-          'categories': category_data
-      }
-  }
-  return render(request, 'budget_detail.html', context)
+    # Prepare data for the chart
+    category_data = []
+    for item in category_spending:
+        if item['category'] and item['amount']:
+            category_data.append({
+                'category': budget.get_category_display() if budget.budget_type == 'category' else item['category'],
+                'amount': float(item['amount'])
+            })
+
+    context = {
+        'budget': budget,
+        'limit': budget.calculate_budget_limit(),
+        'remaining': budget.get_remaining_budget(),
+        'percentage_used': budget.get_percentage_used(),
+        'spending_data': {
+            'spent': float(budget.current_amount_spent),
+            'remaining': float(budget.get_remaining_budget()),
+            'categories': category_data
+        }
+    }
+    return render(request, 'budget_detail.html', context)
 
 
 

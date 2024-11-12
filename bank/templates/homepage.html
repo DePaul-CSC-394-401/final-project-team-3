@@ -8,6 +8,16 @@
     <!-- Bootswatch CSS -->
     <link rel="stylesheet" href="https://bootswatch.com/5/zephyr/bootstrap.min.css">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        .card.homepage-hover-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card.homepage-hover-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+    </style>
 </head>
 <body>
 
@@ -61,7 +71,7 @@
         <div class="row text-center mb-4">
             <!-- Savings -->
             <div class="col-md-4 col-sm-6 mb-4">
-                <div class="card h-100">
+                <div class="card h-100 homepage-hover-card">
                     <img src="{% static 'images/savings.jpg' %}" class="card-img-top mx-auto mt-3 img-fluid" 
                          alt="Savings" style="width: 100px; height: 100px;" loading="lazy">
                     <div class="card-body">
@@ -72,7 +82,7 @@
             </div>
             <!-- Budgeting -->
             <div class="col-md-4 col-sm-6 mb-4">
-                <div class="card h-100">
+                <div class="card h-100 homepage-hover-card">
                     <img src="{% static 'images/budgeting.jpg' %}" class="card-img-top mx-auto mt-3 img-fluid" 
                          alt="Budgeting" style="width: 100px; height: 100px;" loading="lazy">
                     <div class="card-body">
@@ -83,7 +93,7 @@
             </div>
             <!-- Debt Management -->
             <div class="col-md-4 col-sm-6 mb-4">
-                <div class="card h-100">
+                <div class="card h-100 homepage-hover-card">
                     <img src="{% static 'images/debt_management.jpg' %}" class="card-img-top mx-auto mt-3 img-fluid" 
                          alt="Debt Management" style="width: 100px; height: 100px;" loading="lazy">
                     <div class="card-body">

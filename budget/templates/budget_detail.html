@@ -174,7 +174,7 @@
         const spendingData = {{ spending_data|safe }};
         const total = spendingData.spent + spendingData.remaining;
         
-        // Create an array of colors for different categories
+        // An array of colors for different categories
         const categoryColors = {
             'Bills & Utilities': '#FF6B6B',
             'Food & Dining': '#4ECDC4',
@@ -185,7 +185,7 @@
             'Other': '#FF9999'
         };
     
-        // Prepare datasets for categories
+        // Prep datasets for categories
         const categoryDatasets = spendingData.categories.map(cat => ({
             label: cat.category,
             data: [cat.amount],

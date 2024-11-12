@@ -13,18 +13,12 @@ from dateutil.relativedelta import relativedelta
 
 @login_required
 def budget_list(request):
-  """Display list of all budgets for the user"""
+  # Display list of all budgets for the user
   budgets = Budget.objects.filter(user=request.user)
-
-
-
 
   # Update amounts spent for all budgets
   for budget in budgets:
       budget.update_amount_spent()
-
-
-
 
   # Prepare data for spending visualization for account-based budgets
   spending_data = [
@@ -35,9 +29,6 @@ def budget_list(request):
       }
       for budget in budgets.filter(budget_type='account')
   ]
-
-
-
 
   context = {
       'budgets': budgets,
@@ -51,7 +42,7 @@ def budget_list(request):
 
 @login_required
 def budget_detail(request, pk):
-  """Display detailed view of a specific budget """
+  # Display detailed view of a specific budget
   budget = get_object_or_404(Budget, pk=pk, user=request.user)
   budget.update_amount_spent()
   
@@ -64,6 +55,8 @@ def budget_detail(request, pk):
   elif budget.budget_type == 'category':
      base_query = base_query.filter(category=budget.category)
   
+  # Set the range for budget for the first day of the current month
+  # Visuals should pull the values for the monthly shit
   today = datetime.now()
   month_start = today.replace(day=1)
   month_end = (month_start + relativedelta(months=1)) - relativedelta(days=1)
@@ -79,7 +72,8 @@ def budget_detail(request, pk):
         .annotate(amount=Sum('amount'))
         .order_by('category')
     )
-    
+  
+  # Getting the total DATTTAAA
   category_data = []
   for item in category_spending:
       if item['category'] and item['amount']:
@@ -87,8 +81,6 @@ def budget_detail(request, pk):
             'category': item['category'],
             'amount': float(item['amount'])
         })
-
-
 
   context = {
       'budget': budget,

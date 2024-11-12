@@ -61,19 +61,21 @@ def view_account(request, account_no):
     # fetch the transactions for this account
     transactions = Transaction.objects.filter(bank_account=account).order_by('-date')
 
-    # Calculate category totals for this account
+    # calculate category totals for this account
     category_totals = (Transaction.objects
                        .filter(bank_account=account)
                        .values('category')
                        .annotate(total=Sum('amount'))
                        .order_by('-total'))
 
-    # Convert Decimal to float for JSON serialization
+    # convert decimal to float for json
+    # use a float to represent graphs
     category_totals_json = json.dumps([{
         'category': item['category'],
         'total': float(item['total'])
     } for item in category_totals])
 
+    # pass the graph categories to page
     return render(request, 'view_account.html', {
         'account': account,
         'transactions': transactions,

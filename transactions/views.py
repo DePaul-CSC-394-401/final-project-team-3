@@ -120,6 +120,7 @@ def transaction_list(request):
 
     if date_range['min_date'] and date_range['max_date']:
         # Create a list of all months between min and max date
+        # List is used to make the x-axis
         current_date = date_range['min_date'].replace(day=1)
         end_date = date_range['max_date'].replace(day=1)
         all_months = []
@@ -129,6 +130,8 @@ def transaction_list(request):
             current_date += relativedelta(months=1)
 
         # Create data for each category
+        # Go thru each month and add it to the list of each month
+        # Add totals to the categories to that list
         category_monthly_data = {}
         for category_code, category_name in Transaction.TRANSACTION_CATEGORIES:
             monthly_spending = {}
@@ -152,7 +155,7 @@ def transaction_list(request):
             'datasets': []
         }
 
-        # Define colors (matching pie chart colors)
+        # Define colors
         colors = [
             '#FF6384',
             '#36A2EB',
@@ -171,7 +174,9 @@ def transaction_list(request):
         ]
 
 
-        # Create datasets for each category
+        # Create lines for each category
+        # Start with all lines hidden except total
+        # Keep points for category lines
         for i, (category_code, data) in enumerate(category_monthly_data.items()):
             category_color = colors[i] if i < len(colors) else colors[i % len(colors)]
             chart_data['datasets'].append({
@@ -179,10 +184,10 @@ def transaction_list(request):
                 'data': data['data'],
                 'borderColor': category_color,
                 'backgroundColor': category_color,
-                'hidden': True,  # Start with all lines hidden except total
+                'hidden': True,  
                 'fill': False,
                 'order': 1,
-                'pointRadius': 0,  # Keep points for category lines
+                'pointRadius': 0,  
                 'pointHoverRadius': 6
             })
 
@@ -194,12 +199,12 @@ def transaction_list(request):
         chart_data['datasets'].append({
             'label': 'Total',
             'data': total_spending,
-            'borderColor': 'rgba(0, 0, 0, 0.7)',  # Semi-transparent black border
-            'backgroundColor': 'rgba(0, 0, 0, 0.2)',  # Very light black fill
-            'fill': True,  # Enable filling
-            'hidden': False,  # Total line visible by default
-            'order': 2,  # Higher order means it will be drawn first (bottom layer)
-            'pointRadius': 0,  # This will hide the points for the total line
+            'borderColor': 'rgba(0, 0, 0, 0.7)', 
+            'backgroundColor': 'rgba(0, 0, 0, 0.2)', 
+            'fill': True, 
+            'hidden': False, 
+            'order': 2,  
+            'pointRadius': 0, 
             'pointHoverRadius': 0
         })
 
@@ -208,20 +213,23 @@ def transaction_list(request):
     else:
         monthly_totals_json = '[]'
 
-    # Category aggregation for pie chart
+    # Get the transactions for the pie chart
+    all_transactions = Transaction.objects.filter(bank_account__in=accounts)
+
+    # Figure out the categories for pie chart
     category_totals_dict = {code: 0 for code, _ in Transaction.TRANSACTION_CATEGORIES}
 
     # Get actual totals from transactions
-    category_aggregation = transactions.values('category').annotate(
-        total=Sum('amount')
-    )
+    category_aggregation = all_transactions.values('category').annotate(
+    total=Sum('amount')
+)
 
     # Update dictionary with actual values
     for item in category_aggregation:
         if item['category'] in category_totals_dict:
             category_totals_dict[item['category']] = float(item['total'])
 
-    # Prepare data for JSON in the same order as TRANSACTION_CATEGORIES
+    # Prep data for json in the same order as transactions_categories
     category_totals_json = json.dumps([
         {
             'category': category_code,
@@ -230,7 +238,7 @@ def transaction_list(request):
         for category_code, _ in Transaction.TRANSACTION_CATEGORIES
     ])
 
-    # Get all category choices from the Transaction model
+    # Get all category choices from the transaction model
     category_choices = Transaction.TRANSACTION_CATEGORIES
 
     context = {
